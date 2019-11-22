@@ -17,8 +17,11 @@ import pandas as pd
 import torch
 from torch.utils.data import Dataset
 
+
 class OzeEvaluationDataset(Dataset):
     """Torch dataset for Oze datachallenge evaluation.
+
+    Load dataset from two train.csv and test.csv file.
 
     Attributes
     ----------
@@ -44,9 +47,9 @@ class OzeEvaluationDataset(Dataset):
             Default is "labels.json".
         """
         super().__init__(**kwargs)
-        
+
         self._load_x_from_csv(dataset_x_path, labels_path)
-        
+
     def _load_x_from_csv(self, dataset_x_path, labels_path):
         """Load input dataset from csv and create x_train tensor."""
         # Load dataset as csv
@@ -57,13 +60,14 @@ class OzeEvaluationDataset(Dataset):
             self.labels = json.load(stream_json)
 
         m = x.shape[0]
-        K = 672 # Can be found through csv
+        K = 672  # Can be found through csv
 
         # Create R and Z
         R = x[self.labels["R"]].values
         R = np.tile(R[:, np.newaxis, :], (1, K, 1))
 
-        Z = x[[f"{var_name}_{i}" for var_name in self.labels["Z"] for i in range(K)]]
+        Z = x[[f"{var_name}_{i}" for var_name in self.labels["Z"]
+               for i in range(K)]]
         Z = Z.values.reshape((m, -1, K))
         Z = Z.transpose((0, 2, 1))
 
@@ -120,10 +124,11 @@ class OzeDataset(OzeEvaluationDataset):
         y = pd.read_csv(dataset_y_path)
 
         m = y.shape[0]
-        K = 672 # Can be found through csv
+        K = 672  # Can be found through csv
 
         # Create X
-        X = y[[f"{var_name}_{i}" for var_name in self.labels["X"] for i in range(K)]]
+        X = y[[f"{var_name}_{i}" for var_name in self.labels["X"]
+               for i in range(K)]]
         X = X.values.reshape((m, -1, K))
         X = X.transpose((0, 2, 1))
 
@@ -142,22 +147,48 @@ class OzeDataset(OzeEvaluationDataset):
 
         return (self._x[idx], self._y[idx])
 
+
 class OzeNPZDataset(Dataset):
+    """Torch dataset for Oze datachallenge evaluation.
+
+    Load dataset from a single npz file.
+
+    Attributes
+    ----------
+    x: np.array
+        Dataset input of shape (m, K, 37).
+    y: np.array
+        Dataset target of shape (m, K, 8).
+    labels: Dict
+        Ordered labels list for R, Z and X.
+    m: np.array
+        Normalization constant.
+    M: np.array
+        Normalization constant.
+    """
+
     def __init__(self, dataset_path, labels_path="labels.json", **kwargs):
+        """Load dataset from npz.
+
+        Parameters
+        ---------
+        dataset_x: str or Path
+            Path to the dataset inputs as npz.
+        labels_path: str or Path, optional
+            Path to the labels, divided in R, Z and X, in json format.
+            Default is "labels.json".
+        """
         super().__init__(**kwargs)
 
-        self.dataset_path = dataset_path
-        self.labels_path = labels_path
+        self._load_npz(dataset_path, labels_path)
 
-        self._load_csv()
-
-    def _load_csv(self):
+    def _load_npz(self, dataset_path, labels_path):
         """Load dataset from csv and create x_train and y_train tensors."""
         # Load dataset as csv
-        dataset = np.load(self.dataset_path)
-        
+        dataset = np.load(dataset_path)
+
         # Load labels, can be found through csv or challenge description
-        with open(self.labels_path, "r") as stream_json:
+        with open(labels_path, "r") as stream_json:
             self.labels = json.load(stream_json)
 
         R, X, Z = dataset['R'], dataset['X'], dataset['Z']
@@ -180,17 +211,11 @@ class OzeNPZDataset(Dataset):
         self._y = X
         self.original_y = np.array(self._y).astype(np.float32)
         # Normalize
-        M = np.max(self._y, axis=(0, 1))
-        m = np.min(self._y, axis=(0, 1))
+        self.M = np.max(self._y, axis=(0, 1))
+        self.m = np.min(self._y, axis=(0, 1))
         self._y = (self._y - m) / (M - m + np.finfo(float).eps)
         # Convert to float32
         self._y = self._y.astype(np.float32)
-
-        self.M = M
-        self.m = m
-
-        print(
-            f"Loaded\n\tR: {R.shape}\n\tZ: {Z.shape}\n\tX: {X.shape}")
 
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
