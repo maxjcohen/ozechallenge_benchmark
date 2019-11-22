@@ -1,0 +1,19 @@
+# Environment
+.env
+.vscode
+
+# Compiled python
+*.pyc
+
+# Jupyter checkpoints
+*.ipynb_checkpoints
+
+# Dataset
+*.csv
+*.npz
+
+# Models
+*.pth
+
+# Figures
+*.png
