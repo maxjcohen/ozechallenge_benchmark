@@ -65,11 +65,13 @@ class OzeEvaluationDataset(Dataset):
         # Create R and Z
         R = x[self.labels["R"]].values
         R = np.tile(R[:, np.newaxis, :], (1, K, 1))
+        R = R.astype(np.float32)
 
         Z = x[[f"{var_name}_{i}" for var_name in self.labels["Z"]
                for i in range(K)]]
         Z = Z.values.reshape((m, -1, K))
         Z = Z.transpose((0, 2, 1))
+        Z = Z.astype(np.float32)
 
         # Store R and Z as x_train
         self._x = np.concatenate([Z, R], axis=-1)
@@ -77,8 +79,6 @@ class OzeEvaluationDataset(Dataset):
         self.M = np.max(self._x, axis=(0, 1))
         self.m = np.min(self._x, axis=(0, 1))
         self._x = (self._x - self.m) / (self.M - self.m + np.finfo(float).eps)
-        # Convert to float32
-        self._x = self._x.astype(np.float32)
 
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
@@ -191,7 +191,7 @@ class OzeNPZDataset(Dataset):
         with open(labels_path, "r") as stream_json:
             self.labels = json.load(stream_json)
 
-        R, X, Z = dataset['R'], dataset['X'], dataset['Z']
+        R, X, Z = dataset['R'].astype(np.float32), dataset['X'].astype(np.float32), dataset['Z'].astype(np.float32)
         m = Z.shape[0]  # Number of training example
         K = Z.shape[-1]  # Time serie length
 
@@ -205,17 +205,13 @@ class OzeNPZDataset(Dataset):
         M = np.max(self._x, axis=(0, 1))
         m = np.min(self._x, axis=(0, 1))
         self._x = (self._x - m) / (M - m + np.finfo(float).eps)
-        # Convert to float32
-        self._x = self._x.astype(np.float32)
 
         self._y = X
         self.original_y = np.array(self._y).astype(np.float32)
         # Normalize
         self.M = np.max(self._y, axis=(0, 1))
         self.m = np.min(self._y, axis=(0, 1))
-        self._y = (self._y - m) / (M - m + np.finfo(float).eps)
-        # Convert to float32
-        self._y = self._y.astype(np.float32)
+        self._y = (self._y - self.m) / (self.M - self.m + np.finfo(float).eps)
 
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
