@@ -7,7 +7,6 @@ $ net = BenchmarkLSTM()
 
 """
 
-import torch
 import torch.nn as nn
 
 
@@ -41,6 +40,7 @@ class BenchmarkLSTM(nn.Module):
         self.lstm = nn.LSTM(input_dim, hidden_dim, num_layers=num_layers, batch_first=True)
         self.linear = nn.Linear(hidden_dim, output_dim)
 
+    # NOTE Parameters differ from overridden 'forward' methodpylint(arguments-differ)
     def forward(self, x):
         """Propagate input through the network.
 
