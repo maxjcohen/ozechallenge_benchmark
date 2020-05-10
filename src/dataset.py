@@ -89,6 +89,11 @@ class OzeEvaluationDataset(Dataset):
     def __len__(self):
         return self._x.shape[0]
 
+    def get_x_shape(self):
+        return self._x.shape
+
+    def get_y_shape(self):
+        return self._y.shape
 
 class OzeDataset(OzeEvaluationDataset):
     """Torch dataset for Oze datachallenge training.
@@ -146,6 +151,12 @@ class OzeDataset(OzeEvaluationDataset):
             idx = idx.tolist()
 
         return (self._x[idx], self._y[idx])
+
+    def get_x_shape(self):
+        return self._x.shape
+
+    def get_y_shape(self):
+        return self._y.shape
 
 
 class OzeNPZDataset(Dataset):
@@ -221,3 +232,10 @@ class OzeNPZDataset(Dataset):
 
     def __len__(self):
         return self._x.shape[0]
+
+    def get_x_shape(self):
+        return self._x.shape
+
+    def get_y_shape(self):
+        return self._y.shape
+        

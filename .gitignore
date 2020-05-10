@@ -1,5 +1,6 @@
 # Environment
 .env
+.env.test.local
 .vscode
 
 # Compiled python
@@ -9,8 +10,10 @@
 *.ipynb_checkpoints
 
 # Dataset
-*.csv
-*.npz
+datasets/
+
+# Output
+y_bench.csv
 
 # Models
 *.pth

@@ -1,0 +1,14 @@
+torch
+jupyterlab
+matplotlib
+seaborn
+tqdm
+pylint
+autopep8
+pytest
+python-dotenv
+python-dotenv[cli]
+winregistry
+msedge-selenium-tools
+selenium==3.141
+windows-curses
