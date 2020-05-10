@@ -92,9 +92,6 @@ class OzeEvaluationDataset(Dataset):
     def get_x_shape(self):
         return self._x.shape
 
-    def get_y_shape(self):
-        return self._y.shape
-
 class OzeDataset(OzeEvaluationDataset):
     """Torch dataset for Oze datachallenge training.
 
@@ -238,4 +235,3 @@ class OzeNPZDataset(Dataset):
 
     def get_y_shape(self):
         return self._y.shape
-        
