@@ -1,81 +1,73 @@
 """
 Utils
 """
-import curses
 import json
 import os
 import threading
-import time
 from os import makedirs, path, remove
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 from dotenv import load_dotenv
-from msedge.selenium_tools import Edge, EdgeOptions
-from selenium import common
+import requests
+from lxml import html
+from tqdm import tqdm
+import re
 
-class DownloadMonitorThread(threading.Thread):
+import sys
+
+def download_from_url(session_requests, url, destination_folder):
     """
-    DownloadThread
+    @param: url to download file
+    @param: dst place to put the file
     """
-    def __init__(self, browser, downloads, stdscr, line_count):
-        threading.Thread.__init__(self)
-        self.browser = browser
-        self.downloads = downloads
-        self.stdscr = stdscr
-        self.line_count = line_count
-    def run(self):
-        # self.browser.get("chrome://downloads")
-        self.browser.get("edge://downloads/documents")
-        linecount = self.line_count
-        while True:
-            download_divs = \
-                self.browser.find_elements_by_xpath("//div[@role='listitem']/div/div[2]")
-            is_downloaded = np.zeros((self.downloads,), dtype=bool)
-            for idx, download_div in enumerate(download_divs):
-                try:
-                    name = download_div.find_elements_by_xpath("./div[1]/button[1]/span")[0].text
-                    try:
-                        status = download_div.find_elements_by_xpath("./div[3]/span")[0].text
-                    except IndexError:
-                        status = 'Done'
-                        is_downloaded[idx] = True
-                except common.exceptions.StaleElementReferenceException:
-                    break
-                line = idx+linecount
-                if is_downloaded[idx]:
-                    self.stdscr.addstr(line, 0, "Download %s\n" % name, curses.color_pair(0))
-                    color = curses.color_pair(2)
-                else:
-                    self.stdscr.addstr(line, 0, "Downloading %s...\n" % name, curses.color_pair(0))
-                    color = curses.color_pair(1)
-                self.stdscr.addstr(line, 40, "%s" % status, color)
-            # Print the window to the screen
-            self.stdscr.refresh()
-            if all(is_downloaded):
-                break
-            time.sleep(0.3)
+    result = session_requests.get(
+        url,
+        stream = True,
+        headers = dict(referer = url)
+    )
+    download_details = {}
+    download_details['name'] = re.findall("filename=(.+)", result.headers['content-disposition'])[0]
+    download_details['size'] = int(result.headers["Content-Length"])
+
+    dst = os.path.join(destination_folder, download_details['name'])
+    if Path(dst).is_file():
+        first_byte = os.path.getsize(dst)
+    else:
+        first_byte = 0
+    if first_byte >= download_details['size']:
+        return download_details['size']
+    header = {"Range": "bytes=%s-%s" % (first_byte, download_details['size'])}
+    pbar = tqdm(
+        total=download_details['size'],
+        initial=first_byte,
+        unit='B',
+        unit_scale=True,
+        desc=download_details['name'])
+    req = session_requests.get(url, headers=header, stream=True)
+    with(open(dst, 'ab')) as f:
+        for chunk in req.iter_content(chunk_size=1024):
+            if chunk:
+                f.write(chunk)
+                pbar.update(1024)
+    pbar.close()
+    return download_details['size']
 
 class DownloadThread(threading.Thread):
     """
     DownloadThread
     """
-    def __init__(self, browser, datasets_path, filename):
+    def __init__(self, session_requests, url, path):
         threading.Thread.__init__(self)
-        self.browser = browser
-        self.datasets_path = datasets_path
-        self.filename = filename
+        self.session_requests = session_requests
+        self.url = url
+        self.path = path
     def run(self):
         """
         Download a file from given url
         """
-        self.browser.get(self.filename[0])
-        path_to_check = Path(path.join(self.datasets_path, self.filename[1]))
-        while True:
-            time.sleep(0.1)
-            if path_to_check.is_file():
-                break
+        download_from_url(self.session_requests, self.url, self.path)
 
 def npz_check(datasets_path, output_filename):
     """
@@ -106,72 +98,41 @@ def npz_check(datasets_path, output_filename):
             files_to_download.append(x_test)
         if not Path(dataset_path_str).is_file():
             # If there is datasets folder but there isn't output npz file
+            make_npz_flag = True
             if not Path(path.join(datasets_path, x_train[1])).is_file():
                 # If there is datasets folder but there isn't output npz file and there isn't
                 # x_train file
                 files_to_download.append(x_train)
-                make_npz_flag = True
             if not Path(path.join(datasets_path, y_train[1])).is_file():
                 # If there is datasets folder but there isn't output npz file and there isn't
                 # y_train file
                 files_to_download.append(y_train)
-                make_npz_flag = True
 
     if files_to_download or make_npz_flag:
-        stdscr = curses.initscr()
-        curses.start_color()
-        curses.use_default_colors()
-        curses.init_pair(1, curses.COLOR_YELLOW, curses.COLOR_BLACK)
-        curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
         if files_to_download:
-            stdscr.addstr(0, 0, "Opening browser...\n", curses.color_pair(0))
-            stdscr.refresh()
-            # initialize the driver
-            try:
-                options = EdgeOptions()
-                options.use_chromium = True
-                # options.add_argument('--headless')
-                prefs = {}
-                prefs["profile.default_content_settings.popups"] = 0
-                prefs["download.default_directory"] = str(Path(datasets_path).resolve())
-                options.add_experimental_option("prefs", prefs)
-                browser = Edge(options=options)
-            except common.exceptions.WebDriverException as wde:
-                print(wde)
-                return
-            stdscr.addstr(0, 0, "Open browser\n", curses.color_pair(0))
-            stdscr.addstr(0, 40, "Done", curses.color_pair(2))
-            stdscr.refresh()
-            time.sleep(2)
-            line_count = 4
-            stdscr.addstr(line_count, 0, "Logging in...", curses.color_pair(0))
-            line_count = line_count+1
-            stdscr.refresh()
+            login_url = "https://challengedata.ens.fr/login/"
+            session_requests = requests.session()
+            result = session_requests.get(login_url)
+            tree = html.fromstring(result.text)
+            authenticity_token = list(set(tree.xpath("//input[@name='csrfmiddlewaretoken']/@value")))[0]
             load_dotenv('.env.test.local')
-            browser.get('https://challengedata.ens.fr/login/')
-            username_textbox = browser.find_element_by_id('id_username')
-            password_textbox = browser.find_element_by_id('id_password')
-            username_textbox.send_keys(os.getenv("CHALLENGE_USER_NAME"))
-            password_textbox.send_keys(os.getenv("CHALLENGE_USER_PASSWORD"))
-            # click Login button
-            login_button = browser.find_elements_by_xpath("//button[@type='submit']")[0]
-            login_button.click()
-            stdscr.addstr(line_count-1, 0, "Log in\n", curses.color_pair(0))
-            stdscr.addstr(line_count-1, 40, "Done", curses.color_pair(2))
-            stdscr.addstr(0, 40, "Done", curses.color_pair(2))
-            stdscr.refresh()
+            payload = {
+                "username": os.getenv("CHALLENGE_USER_NAME"), 
+                "password": os.getenv("CHALLENGE_USER_PASSWORD"), 
+                "csrfmiddlewaretoken": authenticity_token
+            }
+            result = session_requests.post(
+                login_url,
+                data = payload,
+                headers = dict(referer=login_url)
+            )
+            assert result.status_code == 200
 
             threads = []
-            # Create new threads
             for file in files_to_download:
-                thread = DownloadThread(browser, datasets_path, file)
-                threads.append(thread)
+                threads.append(DownloadThread(session_requests, file[0], datasets_path))
 
-            files_to_download_length = len(files_to_download)
-            threads.append(DownloadMonitorThread(browser, files_to_download_length, stdscr, line_count))
-            line_count = line_count+files_to_download_length
-
-            # Wait for all threads to complete
+            # Start all threads
             for thread in threads:
                 thread.start()
 
@@ -179,23 +140,8 @@ def npz_check(datasets_path, output_filename):
             for thread in threads:
                 thread.join()
 
-            stdscr.addstr(line_count, 0, "Closing browser...", curses.color_pair(0))
-            line_count = line_count + 1
-            stdscr.refresh()
-            browser.close()
-            stdscr.addstr(line_count-1, 0, "Close browser\n", curses.color_pair(0))
-            stdscr.addstr(line_count-1, 40, "Done", curses.color_pair(2))
-            stdscr.refresh()
         if make_npz_flag:
-            stdscr.addstr(line_count, 0, "Creating %s.npz file..." % output_filename, curses.color_pair(0))
-            line_count = line_count + 1
-            stdscr.refresh()
             make_npz(datasets_path, output_filename, x_train[1], y_train[1])
-            stdscr.addstr(line_count-1, 0, "Create %s.npz file\n" % output_filename, curses.color_pair(0))
-            stdscr.addstr(line_count-1, 40, "Done", curses.color_pair(2))
-            stdscr.refresh()
-            curses.napms(1000)
-            # print(stdscr.getstr().decode(encoding="utf-8"))
     return dataset_path_str
 
 def make_npz(datasets_path, output_filename, x_train_filename, y_train_filename):

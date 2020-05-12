@@ -1,0 +1,11 @@
+torch
+jupyterlab
+matplotlib
+seaborn
+tqdm
+pylint
+autopep8
+pytest
+python-dotenv
+python-dotenv[cli]
+lxml
