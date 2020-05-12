@@ -15,29 +15,35 @@ from dotenv import load_dotenv
 from msedge.selenium_tools import Edge, EdgeOptions
 from selenium import common
 
+
 class DownloadMonitorThread(threading.Thread):
     """
     DownloadThread
     """
+
     def __init__(self, browser, downloads, stdscr, line_count):
         threading.Thread.__init__(self)
         self.browser = browser
         self.downloads = downloads
         self.stdscr = stdscr
         self.line_count = line_count
+
     def run(self):
-        # self.browser.get("chrome://downloads")
-        self.browser.get("edge://downloads/documents")
+        self.browser.get("chrome://downloads/documents")
+        # self.browser.get("edge://downloads/documents")
         linecount = self.line_count
         while True:
             download_divs = \
-                self.browser.find_elements_by_xpath("//div[@role='listitem']/div/div[2]")
+                self.browser.find_elements_by_xpath(
+                    "//div[@role='listitem']/div/div[2]")
             is_downloaded = np.zeros((self.downloads,), dtype=bool)
             for idx, download_div in enumerate(download_divs):
                 try:
-                    name = download_div.find_elements_by_xpath("./div[1]/button[1]/span")[0].text
+                    name = download_div.find_elements_by_xpath(
+                        "./div[1]/button[1]/span")[0].text
                     try:
-                        status = download_div.find_elements_by_xpath("./div[3]/span")[0].text
+                        status = download_div.find_elements_by_xpath(
+                            "./div[3]/span")[0].text
                     except IndexError:
                         status = 'Done'
                         is_downloaded[idx] = True
@@ -45,10 +51,12 @@ class DownloadMonitorThread(threading.Thread):
                     break
                 line = idx+linecount
                 if is_downloaded[idx]:
-                    self.stdscr.addstr(line, 0, "Download %s\n" % name, curses.color_pair(0))
+                    self.stdscr.addstr(line, 0, "Download %s\n" %
+                                       name, curses.color_pair(0))
                     color = curses.color_pair(2)
                 else:
-                    self.stdscr.addstr(line, 0, "Downloading %s...\n" % name, curses.color_pair(0))
+                    self.stdscr.addstr(
+                        line, 0, "Downloading %s...\n" % name, curses.color_pair(0))
                     color = curses.color_pair(1)
                 self.stdscr.addstr(line, 40, "%s" % status, color)
             # Print the window to the screen
@@ -57,32 +65,31 @@ class DownloadMonitorThread(threading.Thread):
                 break
             time.sleep(0.3)
 
+
 class DownloadThread(threading.Thread):
     """
     DownloadThread
     """
-    def __init__(self, browser, datasets_path, filename):
+
+    def __init__(self, browser, filename):
         threading.Thread.__init__(self)
         self.browser = browser
-        self.datasets_path = datasets_path
         self.filename = filename
+
     def run(self):
         """
         Download a file from given url
         """
         self.browser.get(self.filename[0])
-        path_to_check = Path(path.join(self.datasets_path, self.filename[1]))
-        while True:
-            time.sleep(0.1)
-            if path_to_check.is_file():
-                break
+
 
 def npz_check(datasets_path, output_filename):
     """
     make sure npz is present
     """
     output_extension = ".npz"
-    dataset_path_str = path.join(datasets_path, output_filename+output_extension)
+    dataset_path_str = path.join(
+        datasets_path, output_filename+output_extension)
     x_train = \
         ('https://challengedata.ens.fr/participants/challenges/28/download/x-train',
          'x_train_LsAZgHU.csv')
@@ -133,17 +140,18 @@ def npz_check(datasets_path, output_filename):
                 # options.add_argument('--headless')
                 prefs = {}
                 prefs["profile.default_content_settings.popups"] = 0
-                prefs["download.default_directory"] = str(Path(datasets_path).resolve())
+                prefs["download.default_directory"] = str(
+                    Path(datasets_path).resolve())
                 options.add_experimental_option("prefs", prefs)
                 browser = Edge(options=options)
             except common.exceptions.WebDriverException as wde:
                 print(wde)
                 return
             stdscr.addstr(0, 0, "Open browser\n", curses.color_pair(0))
-            stdscr.addstr(0, 40, "Done", curses.color_pair(2))
+            stdscr.addstr(0, 40, "Done\n", curses.color_pair(2))
             stdscr.refresh()
             time.sleep(2)
-            line_count = 4
+            line_count = 5
             stdscr.addstr(line_count, 0, "Logging in...", curses.color_pair(0))
             line_count = line_count+1
             stdscr.refresh()
@@ -154,7 +162,8 @@ def npz_check(datasets_path, output_filename):
             username_textbox.send_keys(os.getenv("CHALLENGE_USER_NAME"))
             password_textbox.send_keys(os.getenv("CHALLENGE_USER_PASSWORD"))
             # click Login button
-            login_button = browser.find_elements_by_xpath("//button[@type='submit']")[0]
+            login_button = browser.find_elements_by_xpath(
+                "//button[@type='submit']")[0]
             login_button.click()
             stdscr.addstr(line_count-1, 0, "Log in\n", curses.color_pair(0))
             stdscr.addstr(line_count-1, 40, "Done", curses.color_pair(2))
@@ -164,11 +173,12 @@ def npz_check(datasets_path, output_filename):
             threads = []
             # Create new threads
             for file in files_to_download:
-                thread = DownloadThread(browser, datasets_path, file)
+                thread = DownloadThread(browser, file)
                 threads.append(thread)
 
             files_to_download_length = len(files_to_download)
-            threads.append(DownloadMonitorThread(browser, files_to_download_length, stdscr, line_count))
+            threads.append(DownloadMonitorThread(
+                browser, files_to_download_length, stdscr, line_count))
             line_count = line_count+files_to_download_length
 
             # Wait for all threads to complete
@@ -179,36 +189,47 @@ def npz_check(datasets_path, output_filename):
             for thread in threads:
                 thread.join()
 
-            stdscr.addstr(line_count, 0, "Closing browser...", curses.color_pair(0))
+            stdscr.addstr(line_count, 0, "Closing browser...",
+                          curses.color_pair(0))
             line_count = line_count + 1
             stdscr.refresh()
             browser.close()
-            stdscr.addstr(line_count-1, 0, "Close browser\n", curses.color_pair(0))
+            stdscr.addstr(line_count-1, 0, "Close browser\n",
+                          curses.color_pair(0))
             stdscr.addstr(line_count-1, 40, "Done", curses.color_pair(2))
             stdscr.refresh()
         if make_npz_flag:
-            stdscr.addstr(line_count, 0, "Creating %s.npz file..." % output_filename, curses.color_pair(0))
-            line_count = line_count + 1
-            stdscr.refresh()
-            make_npz(datasets_path, output_filename, x_train[1], y_train[1])
-            stdscr.addstr(line_count-1, 0, "Create %s.npz file\n" % output_filename, curses.color_pair(0))
-            stdscr.addstr(line_count-1, 40, "Done", curses.color_pair(2))
-            stdscr.refresh()
+            make_npz(datasets_path, output_filename,
+                     x_train[1], y_train[1], stdscr, line_count)
             curses.napms(1000)
             # print(stdscr.getstr().decode(encoding="utf-8"))
     return dataset_path_str
 
-def make_npz(datasets_path, output_filename, x_train_filename, y_train_filename):
+
+def make_npz(datasets_path, output_filename, x_train_filename, y_train_filename, stdscr, line_count):
     """
     Creates the npz file and deletes the x_train and y_train files
     """
     x_train_path = path.join(datasets_path, x_train_filename)
     y_train_path = path.join(datasets_path, y_train_filename)
     # create npz file
+    stdscr.addstr(line_count, 0, "Creating %s.npz file..." %
+                  output_filename, curses.color_pair(0))
+    line_count = line_count + 1
+    stdscr.refresh()
     csv2npz(x_train_path, y_train_path, datasets_path, output_filename)
+    stdscr.addstr(line_count-1, 0, "Create %s.npz file\n" %
+                  output_filename, curses.color_pair(0))
+    stdscr.addstr(line_count-1, 40, "Done", curses.color_pair(2))
+    stdscr.addstr(line_count, 0, "Deleting train files...", curses.color_pair(0))
+    line_count = line_count + 1
+    stdscr.refresh()
     # there is no more need to keep x_train and y_train files
     remove(x_train_path)
     remove(y_train_path)
+    stdscr.addstr(line_count-1, 0, "Delete train files...\n", curses.color_pair(0))
+    stdscr.addstr(line_count-1, 40, "Done", curses.color_pair(2))
+    stdscr.refresh()
 
 def csv2npz(dataset_x_path, dataset_y_path, output_path, filename, labels_path='labels.json'):
     """Load input dataset from csv and create x_train tensor."""
@@ -221,7 +242,7 @@ def csv2npz(dataset_x_path, dataset_y_path, output_path, filename, labels_path='
         labels = json.load(stream_json)
 
     m = x.shape[0]
-    K = 672  # Can be found through csv
+    K = x.shape[1]  # Can be found through csv
 
     # Create R and Z
     R = x[labels["R"]].values
