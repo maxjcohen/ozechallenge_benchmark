@@ -7,15 +7,12 @@
     - 1.2 [Challenge Goals](#challenge-goals)
     - 1.3 [Presentation of the challenge at the Collège de France](#presentation-of-the-challenge-at-the-collège-de-france)
     - 1.4 [Data Description](#data-description)
-    - 1.5 [Benchmark Description](#benchmark-description) 
+    - 1.5 [Benchmark Description](#benchmark-description)
 2. [Requirements](#requirements)
-    - 2.1 [Installation](#installation)   
-        - 2.1.1 [Windows](#windows)
-        - 2.1.2 [Linux/MacOS](#linuxmacos)
+    - 2.1 [Installation](#installation)
     - 2.2 [Oze challenge Benchmark](#oze-challenge-benchmark)
     - 2.3. [Dot-env environment variables](#dot-env-environment-variables)
         - 2.3.1 [Programatically create dot-env file](#programatically-create-dot-env-file)
-    - 2.4 [Selenium Compatible Browser](#selenium-compatible-browser)
 3. [Usage](#usage)
 
 ---
@@ -23,6 +20,7 @@
 ## Description
 
 ### Challenge context
+
 Oze-Energies is a company specialized in instrumented energy optimization of existing commercial buildings. To achieve this purpose, thousands of communicating sensors, coupled with monitoring and energy optimization softwares, measure and store a huge number of building-specific data (temperatures, consumptions, etc.) in real time. Using data accumulated for a few weeks and its statistical learning algorithms, Oze-Energies models the energy behavior of each building. Those models then allow identifying and evaluating progress actions for equal comfort which do not require any work, first by acting partly on the settings of climatic equipment (heating, ventilation and air conditioning) and secondly by resizing energy contracts. These actions reduce the energy bill of the owners and tenants by about 25% on average per year.
 
 ### Challenge goals
@@ -30,9 +28,10 @@ Oze-Energies is a company specialized in instrumented energy optimization of exi
 This challenge aims at introducing a new statistical model to predict and analyze energy consumptions and temperatures in a big building using observations stored in the Oze-Energies database. Physics-based approaches to build an energy/temperature simulation tool in order to model complex building behaviors are widespread in the most complex situations. The main drawback of using highly sophisticated softwares such as TRNsys or EnergyPlus to simulate the behavior of transient systems is the significant computational time required to train such models, as they integrate many noisy sources and a huge number of parameters, and require essentially massive thermodynamics computations. The most common approach is usually either to simplify greatly the model using a schematic understanding of the system, or to run complex time- and resource-consuming campaigns of measurements where trained professionals set the parameters characterizing the physical properties of the system. Even after such campaigns, calibrating these models based on real data obtained from numerous sensors is very difficult. Energy models of buildings depend on a certain number of parameters which influence the accuracy of the simulation. In order to analyze and predict future energy consumptions and future temperatures of a building, it is first necessary to calibrate the model, i.e. find the best parameters to use in the simulation tool so that the model produces similar energy consumptions as the data collected. This usually requires thousands of time-consuming simulations which is not realistic from an industrial point of view. In this data challenge, we propose to build a simplified metamodel to mimic the outputs of the physical model, based on a huge number of stored simulations. The weather conditions are obtained hourly from real sensors to store the real information relative to noisy sollicitations of the buildings. The building management system (cooling scheduling, heating scheduling, ventilation scheduling) is chosen by energy managers to provide realistic situations to the physical model. The other unknow parameters charaterizing the behavior of the building (air infiltration, capacitance, etc.) are chosen in a grid by energy managers to describe all realistic situations. For each situation specified by these input data, time series of heating and cooling consumptions and of internal temperatures associated with each set of parameters are obtained from the physical model. The objective is to build a simplified energy model and to calibrate this model using the input and output data. This will allow then to use the metamodel to propose new tuned parameters to reduce energy consumptions with a given comfort. The metric considered for the challenge is the MSE (mean squared error).
 
 ### Presentation of the challenge at the Collège de France
+
 The presentation of the challenge was made at the Collège de France.
 
-<video poster="https://www.college-de-france.fr/video/stephane-mallat/2020/08-sem-mallat-challenge-oze-energies-20200122_thumb.jpg" width="618" height="347" controls preload><source src="http://www.college-de-france.fr/video/stephane-mallat/2020/08-sem-mallat-challenge-oze-energies-20200122.mp4" media="only screen and (min-device-width: 568px)"></source></video>
+[![Watch the video](https://www.college-de-france.fr/video/stephane-mallat/2020/08-sem-mallat-challenge-oze-energies-20200122_thumb.jpg)](http://www.college-de-france.fr/video/stephane-mallat/2020/08-sem-mallat-challenge-oze-energies-20200122.mp4)
 
 ### Data Description
 
@@ -74,7 +73,7 @@ In the case of cooling, comfort temperature is the temperature above which cooli
 • ventilation_mask_idh: Mask describing if ventilation is activated at hour idh of the simulation,
 • occupancy_idh: Occupancy profile at hour idh of simulation,
 • TAMB_idh: Outside temperatures at hour idh of simulation,
-More information on the following weather input data (obtained hourly) can be found at https://www.ammonit.com/en/wind-solar-wissen/solarmessung
+More information on the following weather input data (obtained hourly) can be found at [ammonit.com](https://www.ammonit.com/en/wind-solar-wissen/solarmessung)
 
 • DNI_idh: Direct Normal Irradiance at hour idh,
 • RHUM_idh: Humidity at hour idh,
@@ -91,7 +90,6 @@ Output files contain the times series to be predicted hourly from the input. The
 The solution files submitted by participants shall follow this output dataset format (i.e contain the above 5377 columns, where the index values correspond to the input test data). An example submission file containing random predictions is provided.
 
 7500 samples (i.e. lines) are available for the training datasets while 500 observations are used for the test datasets.
-
 
 ### Benchmark Description
 
@@ -111,20 +109,8 @@ Clone repository with the following command in the terminal
 
 ```terminal
 git clone https://github.com/maxjcohen/ozechallenge_benchmark.git
-```
-
-#### Windows
-
-```powershell
 cd ozechallenge_benchmark
-pip install -r windows_requirements
-```
-
-#### Linux/MacOS
-
-```bash
-cd ozechallenge_benchmark
-pip install -r linux_macos_requirements
+pip install -r requirements
 ```
 
 ### Oze challenge Benchmark
@@ -160,14 +146,6 @@ In the case you want to store your credentials programatically, follow instructi
 dotenv -f .env.test.local set CHALLENGE_USER_NAME your_user_name
 dotenv -f .env.test.local set CHALLENGE_USER_PASSWORD your_password
 ```
-
-### Selenium Compatible Browser
-
-This repository is configured to use Microsoft Edge Selenium tools as means to automatically download the challenge data. But it can also be injected manually by downloading all the challenge `.csv` files to the datasets folder at the root of the project.
-
-More information about Microsoft Edge Selenium tools can be found [here](https://github.com/microsoft/edge-selenium-tools#getting-started).
-
-Although the automatical download of challenge data was configured to use Microsoft Edge(Chromium version), other webDrivers can be used instead. See available [Selenium WebDrivers](https://www.selenium.dev/selenium/docs/api/py/#drivers). Another webDriver option is the [PhantomJs WebDriver](https://pythonspot.com/selenium-phantomjs/).
 
 ---
 
