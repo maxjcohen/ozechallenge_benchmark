@@ -3,19 +3,50 @@ Utils
 """
 import json
 import os
+import re
 import threading
 from os import makedirs, path, remove
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from dotenv import load_dotenv
 import requests
+import torch
+from dotenv import load_dotenv
 from lxml import html
 from tqdm import tqdm
-import re
 
-import sys
+
+def compute_loss(net: torch.nn.Module,
+                 dataloader: torch.utils.data.DataLoader,
+                 loss_function: torch.nn.Module,
+                 device: torch.device = 'cpu') -> torch.Tensor:
+    """Compute the loss of a network on a given dataset.
+
+    Does not compute gradient.
+
+    Parameters
+    ----------
+    net:
+        Network to evaluate.
+    dataloader:
+        Iterator on the dataset.
+    loss_function:
+        Loss function to compute.
+    device:
+        Torch device, or :py:class:`str`.
+
+    Returns
+    -------
+    Loss as a tensor with no grad.
+    """
+    running_loss = 0
+    with torch.no_grad():
+        for x, y in dataloader:
+            netout = net(x.to(device)).cpu()
+            running_loss += loss_function(y, netout)
+
+    return running_loss / len(dataloader)
 
 def download_from_url(session_requests, url, destination_folder):
     """

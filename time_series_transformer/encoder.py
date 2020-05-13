@@ -5,8 +5,8 @@ import torch
 import torch.nn as nn
 
 from .multi_head_attention import (MultiHeadAttention,
-                                    MultiHeadAttentionChunk,
-                                    MultiHeadAttentionWindow)
+                                   MultiHeadAttentionChunk,
+                                   MultiHeadAttentionWindow)
 from .positionwise_feed_forward import PositionwiseFeedForward
 
 class Encoder(nn.Module):
