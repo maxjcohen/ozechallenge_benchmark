@@ -31,7 +31,8 @@ This challenge aims at introducing a new statistical model to predict and analyz
 
 The presentation of the challenge was made at the Collège de France.
 
-[![Watch the video](https://www.college-de-france.fr/video/stephane-mallat/2020/08-sem-mallat-challenge-oze-energies-20200122_thumb.jpg)](http://www.college-de-france.fr/video/stephane-mallat/2020/08-sem-mallat-challenge-oze-energies-20200122.mp4)
+<!-- http://www.college-de-france.fr/video/stephane-mallat/2020/08-sem-mallat-challenge-oze-energies-20200122.mp4 -->
+[![Watch the video](https://www.college-de-france.fr/video/stephane-mallat/2020/08-sem-mallat-challenge-oze-energies-20200122_thumb.jpg)](https://vimeo.com/user72166531/review/417838078/09b4f20408)
 
 ### Data Description
 
