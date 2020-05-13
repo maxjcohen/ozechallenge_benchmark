@@ -16,7 +16,6 @@ from dotenv import load_dotenv
 from lxml import html
 from tqdm import tqdm
 
-
 def compute_loss(net: torch.nn.Module,
                  dataloader: torch.utils.data.DataLoader,
                  loss_function: torch.nn.Module,
@@ -42,9 +41,9 @@ def compute_loss(net: torch.nn.Module,
     """
     running_loss = 0
     with torch.no_grad():
-        for x, y in dataloader:
-            netout = net(x.to(device)).cpu()
-            running_loss += loss_function(y, netout)
+        for inp, out in dataloader:
+            netout = net(inp.to(device)).cpu()
+            running_loss += loss_function(out, netout)
 
     return running_loss / len(dataloader)
 
@@ -55,8 +54,8 @@ def download_from_url(session_requests, url, destination_folder):
     """
     result = session_requests.get(
         url,
-        stream = True,
-        headers = dict(referer = url)
+        stream=True,
+        headers=dict(referer=url)
     )
     download_details = {}
     download_details['name'] = re.findall("filename=(.+)", result.headers['content-disposition'])[0]
@@ -90,11 +89,11 @@ class DownloadThread(threading.Thread):
     """
     DownloadThread
     """
-    def __init__(self, session_requests, url, path):
+    def __init__(self, session_requests, url, given_path):
         threading.Thread.__init__(self)
         self.session_requests = session_requests
         self.url = url
-        self.path = path
+        self.path = given_path
     def run(self):
         """
         Download a file from given url
@@ -105,9 +104,7 @@ def npz_check(datasets_path, output_filename):
     """
     make sure npz is present
     """
-    output_extension = ".npz"
-    dataset_path_str = path.join(
-        datasets_path, output_filename+output_extension)
+    dataset_path_str = path.join(datasets_path, output_filename+".npz")
     x_train = \
         ('https://challengedata.ens.fr/participants/challenges/28/download/x-train',
          'x_train_LsAZgHU.csv')
@@ -140,68 +137,51 @@ def npz_check(datasets_path, output_filename):
                 # If there is datasets folder but there isn't output npz file and there isn't
                 # y_train file
                 files_to_download.append(y_train)
-
-    if files_to_download or make_npz_flag:
-        if files_to_download:
-            login_url = "https://challengedata.ens.fr/login/"
-            session_requests = requests.session()
-            result = session_requests.get(login_url)
-            tree = html.fromstring(result.text)
-            authenticity_token = list(set(tree.xpath("//input[@name='csrfmiddlewaretoken']/@value")))[0]
-            load_dotenv('.env.test.local')
-            payload = {
-                "username": os.getenv("CHALLENGE_USER_NAME"), 
-                "password": os.getenv("CHALLENGE_USER_PASSWORD"), 
+    if files_to_download:
+        login_url = "https://challengedata.ens.fr/login/"
+        session_requests = requests.session()
+        result = session_requests.get(login_url)
+        authenticity_token = list(set(html.fromstring(result.text).xpath(
+            "//input[@name='csrfmiddlewaretoken']/@value")))[0]
+        load_dotenv('.env.test.local')
+        result = session_requests.post(
+            login_url,
+            data={
+                "username": os.getenv("CHALLENGE_USER_NAME"),
+                "password": os.getenv("CHALLENGE_USER_PASSWORD"),
                 "csrfmiddlewaretoken": authenticity_token
-            }
-            result = session_requests.post(
-                login_url,
-                data = payload,
-                headers = dict(referer=login_url)
-            )
-            assert result.status_code == 200
+            },
+            headers=dict(referer=login_url)
+        )
+        assert result.status_code == 200
 
-            threads = []
-            for file in files_to_download:
-                threads.append(DownloadThread(session_requests, file[0], datasets_path))
+        threads = []
+        for file in files_to_download:
+            threads.append(DownloadThread(session_requests, file[0], datasets_path))
 
-            # Start all threads
-            for thread in threads:
-                thread.start()
+        # Start all threads
+        for thread in threads:
+            thread.start()
 
-            # Wait for all threads to complete
-            for thread in threads:
-                thread.join()
+        # Wait for all threads to complete
+        for thread in threads:
+            thread.join()
 
-        if make_npz_flag:
-            make_npz(datasets_path, output_filename, x_train[1], y_train[1])
+    if make_npz_flag:
+        make_npz(datasets_path, output_filename, x_train[1], y_train[1])
     return dataset_path_str
 
 
-def make_npz(datasets_path, output_filename, x_train_filename, y_train_filename, stdscr, line_count):
+def make_npz(datasets_path, output_filename, x_train_filename, y_train_filename):
     """
     Creates the npz file and deletes the x_train and y_train files
     """
     x_train_path = path.join(datasets_path, x_train_filename)
     y_train_path = path.join(datasets_path, y_train_filename)
-    # create npz file
-    stdscr.addstr(line_count, 0, "Creating %s.npz file..." %
-                  output_filename, curses.color_pair(0))
-    line_count = line_count + 1
-    stdscr.refresh()
     csv2npz(x_train_path, y_train_path, datasets_path, output_filename)
-    stdscr.addstr(line_count-1, 0, "Create %s.npz file\n" %
-                  output_filename, curses.color_pair(0))
-    stdscr.addstr(line_count-1, 40, "Done", curses.color_pair(2))
-    stdscr.addstr(line_count, 0, "Deleting train files...", curses.color_pair(0))
-    line_count = line_count + 1
-    stdscr.refresh()
     # there is no more need to keep x_train and y_train files
     remove(x_train_path)
     remove(y_train_path)
-    stdscr.addstr(line_count-1, 0, "Delete train files...\n", curses.color_pair(0))
-    stdscr.addstr(line_count-1, 40, "Done", curses.color_pair(2))
-    stdscr.refresh()
 
 def csv2npz(dataset_x_path, dataset_y_path, output_path, filename, labels_path='labels.json'):
     """Load input dataset from csv and create x_train tensor."""
