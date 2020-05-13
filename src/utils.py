@@ -52,14 +52,16 @@ def download_from_url(session_requests, url, destination_folder):
     @param: url to download file
     @param: dst place to put the file
     """
-    result = session_requests.get(
+    response = session_requests.get(
         url,
         stream=True,
         headers=dict(referer=url)
     )
+    assert response.ok
+
     download_details = {}
-    download_details['name'] = re.findall("filename=(.+)", result.headers['content-disposition'])[0]
-    download_details['size'] = int(result.headers["Content-Length"])
+    download_details['name'] = re.findall("filename=(.+)", response.headers['content-disposition'])[0]
+    download_details['size'] = int(response.headers["Content-Length"])
 
     dst = os.path.join(destination_folder, download_details['name'])
     if Path(dst).is_file():
@@ -75,9 +77,11 @@ def download_from_url(session_requests, url, destination_folder):
         unit='B',
         unit_scale=True,
         desc=download_details['name'])
-    req = session_requests.get(url, headers=header, stream=True)
+    response = session_requests.get(url, headers=header, stream=True)
+    assert response.ok
+
     with(open(dst, 'ab')) as f:
-        for chunk in req.iter_content(chunk_size=1024):
+        for chunk in response.iter_content(chunk_size=1024):
             if chunk:
                 f.write(chunk)
                 pbar.update(1024)
@@ -140,11 +144,13 @@ def npz_check(datasets_path, output_filename):
     if files_to_download:
         login_url = "https://challengedata.ens.fr/login/"
         session_requests = requests.session()
-        result = session_requests.get(login_url)
-        authenticity_token = list(set(html.fromstring(result.text).xpath(
+        response = session_requests.get(login_url)
+        assert response.ok
+
+        authenticity_token = list(set(html.fromstring(response.text).xpath(
             "//input[@name='csrfmiddlewaretoken']/@value")))[0]
         load_dotenv('.env.test.local')
-        result = session_requests.post(
+        response = session_requests.post(
             login_url,
             data={
                 "username": os.getenv("CHALLENGE_USER_NAME"),
@@ -153,7 +159,7 @@ def npz_check(datasets_path, output_filename):
             },
             headers=dict(referer=login_url)
         )
-        assert result.status_code == 200
+        assert response.ok
 
         threads = []
         for file in files_to_download:
