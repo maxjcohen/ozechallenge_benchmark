@@ -8,4 +8,5 @@ autopep8
 pytest
 python-dotenv
 python-dotenv[cli]
+psutil
 lxml
