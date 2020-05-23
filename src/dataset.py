@@ -16,7 +16,7 @@ import numpy as np
 import pandas as pd
 import torch
 from torch.utils.data import Dataset
-
+TIME_SERIES_LENGTH = 672
 
 class OzeEvaluationDataset(Dataset):
     """Torch dataset for Oze datachallenge evaluation.
@@ -35,7 +35,7 @@ class OzeEvaluationDataset(Dataset):
         Normalization constant.
     """
 
-    def __init__(self, dataset_x_path, time_series_length, labels_path="labels.json", **kwargs):
+    def __init__(self, dataset_x_path, time_series_length=TIME_SERIES_LENGTH, labels_path="labels.json", **kwargs):
         """Load dataset from csv.
 
         Parameters
@@ -103,7 +103,7 @@ class OzeDataset(OzeEvaluationDataset):
         Dataset target of shape (m, K, 8).
     """
 
-    def __init__(self, dataset_x_path, dataset_y_path, time_series_length, labels_path="labels.json", **kwargs):
+    def __init__(self, dataset_x_path, dataset_y_path, time_series_length=TIME_SERIES_LENGTH, labels_path="labels.json", **kwargs):
         """Load dataset from csv.
 
         Parameters
@@ -150,9 +150,11 @@ class OzeDataset(OzeEvaluationDataset):
         return (self._x[idx], self._y[idx])
 
     def get_x_shape(self):
+        """get_x_shape"""
         return self._x.shape
 
     def get_y_shape(self):
+        """get_y_shape"""
         return self._y.shape
 
 

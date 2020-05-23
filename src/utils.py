@@ -6,7 +6,6 @@ import os
 import re
 import threading
 from os import makedirs, path, remove
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -15,6 +14,7 @@ import torch
 from dotenv import load_dotenv
 from lxml import html
 from tqdm import tqdm
+TIME_SERIES_LENGTH = 672
 
 def compute_loss(net: torch.nn.Module,
                  dataloader: torch.utils.data.DataLoader,
@@ -63,8 +63,8 @@ def download_from_url(session_requests, url, destination_folder):
     download_details['name'] = re.findall("filename=(.+)", response.headers['content-disposition'])[0]
     download_details['size'] = int(response.headers["Content-Length"])
 
-    dst = os.path.join(destination_folder, download_details['name'])
-    if Path(dst).is_file():
+    dst = destination_folder.joinpath(download_details['name'])
+    if dst.is_file():
         first_byte = os.path.getsize(dst)
     else:
         first_byte = 0
@@ -80,10 +80,10 @@ def download_from_url(session_requests, url, destination_folder):
     response = session_requests.get(url, headers=header, stream=True)
     assert response.ok
 
-    with(open(dst, 'ab')) as f:
+    with(open(dst, 'ab')) as file:
         for chunk in response.iter_content(chunk_size=1024):
             if chunk:
-                f.write(chunk)
+                file.write(chunk)
                 pbar.update(1024)
     pbar.close()
     return download_details['size']
@@ -108,36 +108,39 @@ def npz_check(datasets_path, output_filename):
     """
     make sure npz is present
     """
-    dataset_path_str = path.join(datasets_path, output_filename+".npz")
-    x_train = \
-        ('https://challengedata.ens.fr/participants/challenges/28/download/x-train',
-         'x_train_LsAZgHU.csv')
-    y_train = \
-        ('https://challengedata.ens.fr/participants/challenges/28/download/y-train',
-         'y_train_EFo1WyE.csv')
-    x_test = \
-        ('https://challengedata.ens.fr/participants/challenges/28/download/x-test',
-         'x_test_QK7dVsy.csv')
+    dataset_path = datasets_path.joinpath(output_filename+".npz")
+    x_train = {
+        'url': 'https://challengedata.ens.fr/participants/challenges/28/download/x-train',
+        'filename': 'x_train_LsAZgHU.csv'
+    }
+    y_train = {
+        'url': 'https://challengedata.ens.fr/participants/challenges/28/download/y-train',
+        'filename': 'y_train_EFo1WyE.csv'
+    }
+    x_test = {
+        'url': 'https://challengedata.ens.fr/participants/challenges/28/download/x-test',
+        'filename': 'x_test_QK7dVsy.csv'
+    }
     make_npz_flag = False
     files_to_download = list()
-    if not Path(datasets_path).is_dir():
+    if not datasets_path.is_dir():
         # If there is no datasets folder
         makedirs(datasets_path)
         files_to_download = [x_train, y_train, x_test]
         make_npz_flag = True
     else:
         # If there is datasets folder
-        if not Path(path.join(datasets_path, x_test[1])).is_file():
+        if not datasets_path.joinpath(x_test['filename']).is_file():
             # If there is datasets folder but there isn't x_test file
             files_to_download.append(x_test)
-        if not Path(dataset_path_str).is_file():
+        if not dataset_path.is_file():
             # If there is datasets folder but there isn't output npz file
             make_npz_flag = True
-            if not Path(path.join(datasets_path, x_train[1])).is_file():
+            if not datasets_path.joinpath(x_train['filename']).is_file():
                 # If there is datasets folder but there isn't output npz file and there isn't
                 # x_train file
                 files_to_download.append(x_train)
-            if not Path(path.join(datasets_path, y_train[1])).is_file():
+            if not datasets_path.joinpath(y_train['filename']).is_file():
                 # If there is datasets folder but there isn't output npz file and there isn't
                 # y_train file
                 files_to_download.append(y_train)
@@ -163,7 +166,7 @@ def npz_check(datasets_path, output_filename):
 
         threads = []
         for file in files_to_download:
-            threads.append(DownloadThread(session_requests, file[0], datasets_path))
+            threads.append(DownloadThread(session_requests, file['url'], datasets_path))
 
         # Start all threads
         for thread in threads:
@@ -174,17 +177,20 @@ def npz_check(datasets_path, output_filename):
             thread.join()
 
     if make_npz_flag:
-        make_npz(datasets_path, output_filename, x_train[1], y_train[1])
-    return dataset_path_str
+        make_npz(datasets_path, output_filename, x_train['filename'], y_train['filename'])
+    return dataset_path
 
 
 def make_npz(datasets_path, output_filename, x_train_filename, y_train_filename):
     """
     Creates the npz file and deletes the x_train and y_train files
     """
-    x_train_path = path.join(datasets_path, x_train_filename)
-    y_train_path = path.join(datasets_path, y_train_filename)
+    x_train_path = datasets_path.joinpath(x_train_filename)
+    y_train_path = datasets_path.joinpath(y_train_filename)
+    print('Creating %s.npz...' % output_filename, end='\r')
     csv2npz(x_train_path, y_train_path, datasets_path, output_filename)
+    clear_line_str = '\033[K'
+    print(clear_line_str+'Create '+output_filename+'.npz\tDone')
     # there is no more need to keep x_train and y_train files
     remove(x_train_path)
     remove(y_train_path)
@@ -200,7 +206,7 @@ def csv2npz(dataset_x_path, dataset_y_path, output_path, filename, labels_path='
         labels = json.load(stream_json)
 
     m = x.shape[0]
-    K = x.shape[1]  # Can be found through csv
+    K = TIME_SERIES_LENGTH  # Can be found through csv
 
     # Create R and Z
     R = x[labels["R"]].values
