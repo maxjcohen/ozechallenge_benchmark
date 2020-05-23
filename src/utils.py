@@ -153,11 +153,17 @@ def npz_check(datasets_path, output_filename):
         authenticity_token = list(set(html.fromstring(response.text).xpath(
             "//input[@name='csrfmiddlewaretoken']/@value")))[0]
         load_dotenv('.env.test.local')
+        challenge_user_name = os.getenv("CHALLENGE_USER_NAME")
+        challenge_user_password = os.getenv("CHALLENGE_USER_PASSWORD")
+
+        if None in [challenge_user_name, challenge_user_password]:
+            raise ValueError(
+                'Missing login credentials. Make sure you follow https://github.com/DanielAtKrypton/ozechallenge_benchmark#dot-env-environment-variables')
         response = session_requests.post(
             login_url,
             data={
-                "username": os.getenv("CHALLENGE_USER_NAME"),
-                "password": os.getenv("CHALLENGE_USER_PASSWORD"),
+                "username": challenge_user_name,
+                "password": challenge_user_password,
                 "csrfmiddlewaretoken": authenticity_token
             },
             headers=dict(referer=login_url)
