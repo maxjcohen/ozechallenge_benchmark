@@ -14,7 +14,7 @@ import torch
 from dotenv import load_dotenv
 from lxml import html
 from tqdm import tqdm
-from dataset import TIME_SERIES_LENGTH
+from .dataset import TIME_SERIES_LENGTH # pylint: disable=relative-beyond-top-level
 
 def compute_loss(net: torch.nn.Module,
                  dataloader: torch.utils.data.DataLoader,
@@ -158,7 +158,7 @@ def npz_check(datasets_path, output_filename):
 
         if None in [challenge_user_name, challenge_user_password]:
             raise ValueError(
-                'Missing login credentials. Make sure you follow https://github.com/DanielAtKrypton/ozechallenge_benchmark#dot-env-environment-variables')
+                'Missing login credentials. Make sure you follow https://github.com/maxjcohen/ozechallenge_benchmark#dot-env-environment-variables')
         response = session_requests.post(
             login_url,
             data={

@@ -3,8 +3,8 @@ lstm_tsp
 """
 import torch
 
-from .model import BenchmarkLSTM
-from .time_series_predictor import TimeSeriesPredictor
+from .model import BenchmarkLSTM                        # pylint: disable=relative-beyond-top-level
+from .time_series_predictor import TimeSeriesPredictor  # pylint: disable=relative-beyond-top-level
 
 class LSTMTimeSeriesPredictor(TimeSeriesPredictor):
     """

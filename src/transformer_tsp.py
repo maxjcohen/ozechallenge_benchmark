@@ -4,7 +4,7 @@ transformer_tsp
 import torch
 from tst import Transformer
 
-from .time_series_predictor import TimeSeriesPredictor
+from .time_series_predictor import TimeSeriesPredictor  # pylint: disable=relative-beyond-top-level
 
 
 class TransformerTimeSeriesPredictor(TimeSeriesPredictor):

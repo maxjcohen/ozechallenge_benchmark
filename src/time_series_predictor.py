@@ -106,8 +106,32 @@ class TimeSeriesPredictor:
             return self._fit()
         except RuntimeError as err:
             if str(err).startswith('CUDA out of memory.'):
-                warnings.warn('\nSwitching device to cpu to workaround CUDA out of memory problem.', ResourceWarning)
+                warnings.warn(
+                    '\nSwitching device to cpu to workaround CUDA out of memory problem.',
+                    ResourceWarning)
                 self._config_fit(dataset, torch.device("cpu"))
                 return self._fit()
-            else:
-                raise
+            raise
+
+    def compute_loss(self, dataloader):
+        """Compute the loss of a network on a given dataset.
+
+        Does not compute gradient.
+
+        Parameters
+        ----------
+        dataloader:
+            Iterator on the dataset.
+
+        Returns
+        -------
+        Mean loss with no grad.
+        """
+        dataloader_length = len(dataloader)
+        loss = np.empty(dataloader_length)
+        with torch.no_grad():
+            for idx_batch, (inp, out) in enumerate(dataloader):
+                net_out = self.net(inp.to(self.device))
+                loss[idx_batch] = self.loss_function(out.to(self.device), net_out)
+
+        return np.mean(loss)
