@@ -125,7 +125,7 @@ class TimeSeriesPredictor:
 
         Returns
         -------
-        Mean loss with no grad.
+        Loss with no grad.
         """
         dataloader_length = len(dataloader)
         loss = np.empty(dataloader_length)
@@ -134,4 +134,20 @@ class TimeSeriesPredictor:
                 net_out = self.net(inp.to(self.device))
                 loss[idx_batch] = self.loss_function(out.to(self.device), net_out)
 
-        return np.mean(loss)
+        return loss
+
+    def compute_mean_loss(self, dataloader):
+        """Compute the mean loss of a network on a given dataset.
+
+        Does not compute gradient.
+
+        Parameters
+        ----------
+        dataloader:
+            Iterator on the dataset.
+
+        Returns
+        -------
+        Mean loss with no grad.
+        """
+        return np.mean(self.compute_loss(dataloader))
