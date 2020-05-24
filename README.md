@@ -10,6 +10,8 @@
     - 1.5 [Benchmark Description](#benchmark-description)
 2. [Requirements](#requirements)
     - 2.1 [Installation](#installation)
+        - 2.1.1 [MacOS or Linux](#macos-or-linux)
+        - 2.1.2 [Windows](#windows)
     - 2.2 [Oze challenge Benchmark](#oze-challenge-benchmark)
     - 2.3. [Dot-env environment variables](#dot-env-environment-variables)
         - 2.3.1 [Programatically create dot-env file](#programatically-create-dot-env-file)
@@ -106,7 +108,7 @@ Because of the sequential nature of the data, we chose a recurrent neural networ
 
 ### Installation
 
-Clone repository with the following command in the terminal
+Clone repository with the following commands in your terminal
 
 #### MacOS or Linux
 
