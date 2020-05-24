@@ -1,5 +1,5 @@
 """
-time_series_predictor
+time_series_predictor script
 """
 import datetime
 import warnings
@@ -15,7 +15,7 @@ warnings.filterwarnings("default", category=ResourceWarning)
 
 class TimeSeriesPredictor:
     """
-    Time series predictor class
+    Network agnostic time series predictor class
     """
     def __init__(self, learning_rate, epochs):
         self.learning_rate = learning_rate
