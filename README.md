@@ -16,6 +16,7 @@
     - 2.3. [Dot-env environment variables](#dot-env-environment-variables)
         - 2.3.1 [Programatically create dot-env file](#programatically-create-dot-env-file)
 3. [Usage](#usage)
+4. [Test](#test)
 
 ---
 
@@ -174,5 +175,15 @@ Run `benchmark.ipynb`. This file is a Jupyter notebook script that can be run in
 - ["Getting started with the classic Jupyter Notebook"](https://jupyter.org/install)
 
 It can also be converted to `benchmark.py` by following the instruction present at the "Debug a Jupyter Notebook" section of ["Working with Jupyter Notebooks in Visual Studio Code"](https://code.visualstudio.com/docs/python/jupyter-support).
+
+---
+
+## Test
+
+In your terminal run pytest at the root folder of the project.
+
+```terminal
+pytest
+```
 
 ---
