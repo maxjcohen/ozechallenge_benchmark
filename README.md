@@ -183,7 +183,7 @@ It can also be converted to `benchmark.py` by following the instruction present 
 In your terminal run pytest at the root folder of the project.
 
 ```terminal
-pytest
+pytest -s
 ```
 
 ---
