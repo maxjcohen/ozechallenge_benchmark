@@ -3,8 +3,8 @@ lstm_tsp
 """
 import torch
 
-from .model import BenchmarkLSTM                        # pylint: disable=relative-beyond-top-level
-from .time_series_predictor import TimeSeriesPredictor  # pylint: disable=relative-beyond-top-level
+from .model import BenchmarkLSTM
+from .time_series_predictor import TimeSeriesPredictor
 
 class LSTMTimeSeriesPredictor(TimeSeriesPredictor):
     """
@@ -19,6 +19,7 @@ class LSTMTimeSeriesPredictor(TimeSeriesPredictor):
         self.hidden_dim = hidden_dim    # Number of neurons in hidden layers
         self.num_layers = num_layers    # Number of layers
 
+    # pylint: disable=arguments-differ
     def fit(self, dataset, loss_function=torch.nn.MSELoss()):
         """fit"""
         d_input = dataset.get_x_shape()[2]     # From dataset
@@ -29,4 +30,3 @@ class LSTMTimeSeriesPredictor(TimeSeriesPredictor):
 
     def make_future_dataframe(self):
         """make_future_dataframe"""
-        pass
