@@ -13,6 +13,7 @@ from tqdm import tqdm
 # Show switch to cpu warning
 warnings.filterwarnings("default", category=ResourceWarning)
 
+# pylint: disable=too-many-instance-attributes
 class TimeSeriesPredictor:
     """
     Network agnostic time series predictor class

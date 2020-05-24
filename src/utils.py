@@ -10,42 +10,10 @@ from os import makedirs, path, remove
 import numpy as np
 import pandas as pd
 import requests
-import torch
 from dotenv import load_dotenv
 from lxml import html
 from tqdm import tqdm
-from .dataset import TIME_SERIES_LENGTH # pylint: disable=relative-beyond-top-level
-
-def compute_loss(net: torch.nn.Module,
-                 dataloader: torch.utils.data.DataLoader,
-                 loss_function: torch.nn.Module,
-                 device: torch.device = 'cpu') -> torch.Tensor:
-    """Compute the loss of a network on a given dataset.
-
-    Does not compute gradient.
-
-    Parameters
-    ----------
-    net:
-        Network to evaluate.
-    dataloader:
-        Iterator on the dataset.
-    loss_function:
-        Loss function to compute.
-    device:
-        Torch device, or :py:class:`str`.
-
-    Returns
-    -------
-    Loss as a tensor with no grad.
-    """
-    running_loss = 0
-    with torch.no_grad():
-        for inp, out in dataloader:
-            netout = net(inp.to(device)).cpu()
-            running_loss += loss_function(out, netout)
-
-    return running_loss / len(dataloader)
+from .dataset import TIME_SERIES_LENGTH
 
 def download_from_url(session_requests, url, destination_folder):
     """
@@ -104,6 +72,7 @@ class DownloadThread(threading.Thread):
         """
         download_from_url(self.session_requests, self.url, self.path)
 
+# pylint: disable=too-many-locals
 def npz_check(datasets_path, output_filename):
     """
     make sure npz is present
@@ -157,8 +126,9 @@ def npz_check(datasets_path, output_filename):
         challenge_user_password = os.getenv("CHALLENGE_USER_PASSWORD")
 
         if None in [challenge_user_name, challenge_user_password]:
-            raise ValueError(
-                'Missing login credentials. Make sure you follow https://github.com/maxjcohen/ozechallenge_benchmark#dot-env-environment-variables')
+            # pylint: disable=line-too-long
+            link = 'https://github.com/maxjcohen/ozechallenge_benchmark#dot-env-environment-variables'
+            raise ValueError(f'Missing login credentials. Make sure you follow {link}')
         response = session_requests.post(
             login_url,
             data={
@@ -201,6 +171,7 @@ def make_npz(datasets_path, output_filename, x_train_filename, y_train_filename)
     remove(x_train_path)
     remove(y_train_path)
 
+# pylint: disable=invalid-name
 def csv2npz(dataset_x_path, dataset_y_path, output_path, filename, labels_path='labels.json'):
     """Load input dataset from csv and create x_train tensor."""
     # Load dataset as csv

@@ -11,7 +11,7 @@ class TransformerTimeSeriesPredictor(TimeSeriesPredictor):
     """
     TransformerTimeSeriesPredictor
     """
-
+    # pylint: disable=too-many-arguments
     def __init__(self,
                  learning_rate=2e-4,
                  epochs=15, #30,
