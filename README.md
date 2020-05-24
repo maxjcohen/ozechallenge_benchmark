@@ -108,10 +108,23 @@ Because of the sequential nature of the data, we chose a recurrent neural networ
 
 Clone repository with the following command in the terminal
 
-```terminal
+#### MacOS or Linux
+
+```bash
 git clone https://github.com/maxjcohen/ozechallenge_benchmark.git
 cd ozechallenge_benchmark
 virtualenv -p python3 .env
+. .env/bin/activate
+pip install -r requirements
+```
+
+#### Windows
+
+```powershell
+git clone https://github.com/maxjcohen/ozechallenge_benchmark.git
+cd ozechallenge_benchmark
+virtualenv -p python3 .env
+.\.env\Scripts\activate
 pip install -r requirements
 ```
 
