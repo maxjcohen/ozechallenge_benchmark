@@ -14,7 +14,7 @@ import torch
 from dotenv import load_dotenv
 from lxml import html
 from tqdm import tqdm
-TIME_SERIES_LENGTH = 672
+from dataset import TIME_SERIES_LENGTH
 
 def compute_loss(net: torch.nn.Module,
                  dataloader: torch.utils.data.DataLoader,
@@ -60,7 +60,8 @@ def download_from_url(session_requests, url, destination_folder):
     assert response.ok
 
     download_details = {}
-    download_details['name'] = re.findall("filename=(.+)", response.headers['content-disposition'])[0]
+    download_details['name'] = re.findall(
+        "filename=(.+)", response.headers['content-disposition'])[0]
     download_details['size'] = int(response.headers["Content-Length"])
 
     dst = destination_folder.joinpath(download_details['name'])
@@ -87,7 +88,6 @@ def download_from_url(session_requests, url, destination_folder):
                 pbar.update(1024)
     pbar.close()
     return download_details['size']
-
 
 class DownloadThread(threading.Thread):
     """
