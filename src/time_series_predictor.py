@@ -2,7 +2,6 @@
 time_series_predictor
 """
 import datetime
-import sys
 import warnings
 
 import numpy as np
@@ -34,6 +33,8 @@ class TimeSeriesPredictor:
         self.device = device
         is_cuda = device == torch.device("cuda:0")
         num_workers = 0 if is_cuda else self.cpu_count
+        # More info about memory pinning here:
+        # https://pytorch.org/docs/stable/data.html#memory-pinning
         self.dataloader = DataLoader(dataset,
                                      batch_size=batch_size,
                                      shuffle=True,
@@ -42,9 +43,6 @@ class TimeSeriesPredictor:
         self.net = self.net.to(device)
 
     def _fit(self):
-        """
-        Fits selected network
-        """
         loss_best = np.inf
         # Prepare loss history
         hist_loss = np.zeros(self.epochs)
@@ -88,17 +86,16 @@ class TimeSeriesPredictor:
         """
 
     def predict(self, inp):
-        """predict"""
-        # Run predictions
+        """
+        Run predictions
+        """
         with torch.no_grad():
             return self.net(torch.Tensor(inp[np.newaxis, :, :]).to(self.device)).cpu().numpy()
 
     def fit(self, dataset, net, loss_function=torch.nn.MSELoss()):
         """
-        fit
+        Fit selected network
         """
-        # More info about memory pinning here:
-        # https://pytorch.org/docs/stable/data.html#memory-pinning
         self.net = net
         self._config_fit(dataset, torch.device(
             "cuda:0" if torch.cuda.is_available() else "cpu"))
@@ -113,4 +110,4 @@ class TimeSeriesPredictor:
                 self._config_fit(dataset, torch.device("cpu"))
                 return self._fit()
             else:
-                sys.exit()
+                raise

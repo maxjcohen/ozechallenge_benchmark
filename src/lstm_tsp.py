@@ -15,17 +15,18 @@ class LSTMTimeSeriesPredictor(TimeSeriesPredictor):
                  epochs=5,
                  hidden_dim=100,
                  num_layers=3):
-        # NUM_WORKERS = psutil.cpu_count() # Use this to get number of logical processing units
-        # Use this to get number of physical Cores
         super().__init__(learning_rate, epochs)
         self.hidden_dim = hidden_dim    # Number of neurons in hidden layers
         self.num_layers = num_layers    # Number of layers
 
     def fit(self, dataset, loss_function=torch.nn.MSELoss()):
+        """fit"""
         d_input = dataset.get_x_shape()[2]     # From dataset
         d_output = dataset.get_y_shape()[2]    # From dataset
-        net = BenchmarkLSTM(input_dim=d_input, hidden_dim=self.hidden_dim, output_dim=d_output, num_layers=self.num_layers)
+        net = BenchmarkLSTM(input_dim=d_input, hidden_dim=self.hidden_dim,
+                            output_dim=d_output, num_layers=self.num_layers)
         return super().fit(dataset, net, loss_function=loss_function)
 
     def make_future_dataframe(self):
+        """make_future_dataframe"""
         pass
