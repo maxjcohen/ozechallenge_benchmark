@@ -9,4 +9,3 @@ python-dotenv
 python-dotenv[cli]
 psutil
 lxml
-git+https://github.com/maxjcohen/transformer
