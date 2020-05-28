@@ -20,3 +20,6 @@ y_bench.csv
 
 # Figures
 *.png
+
+# Pytest cache
+.pytest_cache/
