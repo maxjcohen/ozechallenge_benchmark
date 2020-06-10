@@ -16,7 +16,7 @@ import numpy as np
 import pandas as pd
 import torch
 from torch.utils.data import Dataset
-
+TIME_SERIES_LENGTH = 672
 
 class OzeEvaluationDataset(Dataset):
     """Torch dataset for Oze datachallenge evaluation.
@@ -35,7 +35,7 @@ class OzeEvaluationDataset(Dataset):
         Normalization constant.
     """
 
-    def __init__(self, dataset_x_path, labels_path="labels.json", **kwargs):
+    def __init__(self, dataset_x_path, time_series_length=TIME_SERIES_LENGTH, labels_path="labels.json", **kwargs):
         """Load dataset from csv.
 
         Parameters
@@ -48,9 +48,9 @@ class OzeEvaluationDataset(Dataset):
         """
         super().__init__(**kwargs)
 
-        self._load_x_from_csv(dataset_x_path, labels_path)
+        self._load_x_from_csv(dataset_x_path, time_series_length, labels_path)
 
-    def _load_x_from_csv(self, dataset_x_path, labels_path):
+    def _load_x_from_csv(self, dataset_x_path, time_series_length, labels_path):
         """Load input dataset from csv and create x_train tensor."""
         # Load dataset as csv
         x = pd.read_csv(dataset_x_path)
@@ -60,7 +60,7 @@ class OzeEvaluationDataset(Dataset):
             self.labels = json.load(stream_json)
 
         m = x.shape[0]
-        K = 672  # Can be found through csv
+        K = time_series_length
 
         # Create R and Z
         R = x[self.labels["R"]].values
@@ -89,6 +89,8 @@ class OzeEvaluationDataset(Dataset):
     def __len__(self):
         return self._x.shape[0]
 
+    def get_x_shape(self):
+        return self._x.shape
 
 class OzeDataset(OzeEvaluationDataset):
     """Torch dataset for Oze datachallenge training.
@@ -101,7 +103,7 @@ class OzeDataset(OzeEvaluationDataset):
         Dataset target of shape (m, K, 8).
     """
 
-    def __init__(self, dataset_x_path, dataset_y_path, labels_path="labels.json", **kwargs):
+    def __init__(self, dataset_x_path, dataset_y_path, time_series_length=TIME_SERIES_LENGTH, labels_path="labels.json", **kwargs):
         """Load dataset from csv.
 
         Parameters
@@ -114,17 +116,17 @@ class OzeDataset(OzeEvaluationDataset):
             Path to the labels, divided in R, Z and X, in json format.
             Default is "labels.json".
         """
-        super().__init__(dataset_x_path=dataset_x_path, labels_path=labels_path, **kwargs)
+        super().__init__(dataset_x_path, time_series_length, labels_path, **kwargs)
 
-        self._load_y_from_csv(dataset_y_path)
+        self._load_y_from_csv(dataset_y_path, time_series_length)
 
-    def _load_y_from_csv(self, dataset_y_path):
+    def _load_y_from_csv(self, dataset_y_path, time_series_length):
         """Load target dataset from csv and create y_train tensor."""
         # Load dataset as csv
         y = pd.read_csv(dataset_y_path)
 
         m = y.shape[0]
-        K = 672  # Can be found through csv
+        K = time_series_length  # Can be found through csv
 
         # Create X
         X = y[[f"{var_name}_{i}" for var_name in self.labels["X"]
@@ -146,6 +148,14 @@ class OzeDataset(OzeEvaluationDataset):
             idx = idx.tolist()
 
         return (self._x[idx], self._y[idx])
+
+    def get_x_shape(self):
+        """get_x_shape"""
+        return self._x.shape
+
+    def get_y_shape(self):
+        """get_y_shape"""
+        return self._y.shape
 
 
 class OzeNPZDataset(Dataset):
@@ -180,7 +190,7 @@ class OzeNPZDataset(Dataset):
         """
         super().__init__(**kwargs)
 
-        self._load_npz(dataset_path, labels_path)
+        self.time_series_length = self._load_npz(dataset_path, labels_path)
 
     def _load_npz(self, dataset_path, labels_path):
         """Load dataset from csv and create x_train and y_train tensors."""
@@ -212,6 +222,7 @@ class OzeNPZDataset(Dataset):
         self.M = np.max(self._y, axis=(0, 1))
         self.m = np.min(self._y, axis=(0, 1))
         self._y = (self._y - self.m) / (self.M - self.m + np.finfo(float).eps)
+        return K
 
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
@@ -221,3 +232,9 @@ class OzeNPZDataset(Dataset):
 
     def __len__(self):
         return self._x.shape[0]
+
+    def get_x_shape(self):
+        return self._x.shape
+
+    def get_y_shape(self):
+        return self._y.shape
