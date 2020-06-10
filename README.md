@@ -112,6 +112,7 @@ Clone repository with the following command in the terminal
 git clone https://github.com/maxjcohen/ozechallenge_benchmark.git
 cd ozechallenge_benchmark
 virtualenv -p python3 .env
+source .env/bin/activate
 pip install -r requirements
 ```
 
