@@ -3,15 +3,15 @@
 ## Table of Contents
 
 1. [Description](#description)
-    - 1.1 [Challenge Context](#challenge-context)
-    - 1.2 [Challenge Goals](#challenge-goals)
-    - 1.3 [Presentation of the challenge at the Collège de France](#presentation-of-the-challenge-at-the-collège-de-france)
-    - 1.4 [Data Description](#data-description)
-    - 1.5 [Benchmark Description](#benchmark-description)
+   - 1.1 [Challenge Context](#challenge-context)
+   - 1.2 [Challenge Goals](#challenge-goals)
+   - 1.3 [Presentation of the challenge at the Collège de France](#presentation-of-the-challenge-at-the-collège-de-france)
+   - 1.4 [Data Description](#data-description)
+   - 1.5 [Benchmark Description](#benchmark-description)
 2. [Requirements](#requirements)
-    - 2.1 [Install dependencies](#install-dependencies)
-    - 2.2 [Download the dataset](#download-the-dataset)
-        - 2.3.1 [Download using credentials (optional)](#download-using-credentials-optional)
+   - 2.1 [Install dependencies](#install-dependencies)
+   - 2.2 [Download the dataset](#download-the-dataset)
+     - 2.3.1 [Download using credentials (optional)](#download-using-credentials-optional)
 3. [Usage](#usage)
 
 ---
@@ -31,6 +31,7 @@ This challenge aims at introducing a new statistical model to predict and analyz
 The presentation of the challenge was made at the Collège de France.
 
 <!-- http://www.college-de-france.fr/video/stephane-mallat/2020/08-sem-mallat-challenge-oze-energies-20200122.mp4 -->
+
 [![Watch the video](https://www.college-de-france.fr/video/stephane-mallat/2020/08-sem-mallat-challenge-oze-energies-20200122_thumb.jpg)](https://player.vimeo.com/video/417838078)
 
 ### Data Description
@@ -64,16 +65,13 @@ Input datasets comprise 12116 columns: the first index column contains unique sa
 - heat_t_conf_idh: Comfort temperature of heating at hour idh of the simulation,
 - heat_t_red_idh: Reduced temperature of heating at hour idh of the simulation,
 - heat_mask_idh: Mask describing if heating is activated at hour idh of the simulation
-In the case of heating, comfort temperature is the temperature below which heating is activated and reduced temperature is the temperature above which heating is not activated.
-
-In the case of cooling, comfort temperature is the temperature above which cooling is activated and reduced temperature is the temperature below which cooling is not activated.
-
 - ventilation_t_idh: Temperature of ventilation at hour idh of the simulation,
 - ventilation_vol_idh: Volume of ventilated air at hour idh of the simulation,
 - ventilation_mask_idh: Mask describing if ventilation is activated at hour idh of the simulation,
 - occupancy_idh: Occupancy profile at hour idh of simulation,
 - TAMB_idh: Outside temperatures at hour idh of simulation,
-More information on the following weather input data (obtained hourly) can be found at [ammonit.com](https://www.ammonit.com/en/wind-solar-wissen/solarmessung)
+
+More information on the following weather input data (obtained hourly) can be found at [ammonit.com](https://www.ammonit.com/en/wind-solar-wissen/solarmessung).
 
 - DNI_idh: Direct Normal Irradiance at hour idh,
 - RHUM_idh: Humidity at hour idh,
@@ -81,12 +79,14 @@ More information on the following weather input data (obtained hourly) can be fo
 - IBEAM_N_idh: Direct Normal Irradiance at hour idh,
 - IDIFF_H_idh: Diffuse Horizontal Irradiation at hour idh,
 - IGLOB_H_idh: Global Horizontal Irradiance at hour idh,
+
 Output files contain the times series to be predicted hourly from the input. They comprise 5377 columns per sample: the first index column contains the unique sample identifiers (corresponding to the input identifiers) while the other 5376 columns contain the inside temperature of the building and various consumptions in kW/hour, normalized by a factor 2e4 for a better numerical interpretability of the loss:
 
 - T_INT_OFFICE_idh: Inside temperatures,
 - Q_AC_OFFICE_idh, Q_HEAT_OFFICE_idh, Q_AHU_C_idh, Q_AHU_H_idh: Cooling, heating and Air handling unit (AHU which can cool or heat outside air) consumptions,
 - Q_EQP_idh, Q_LIGHT_idh: PC and Lights consumptions,
 - Q_PEOPLE_idh: "Free" heating power due to human activities in the building,
+
 The solution files submitted by participants shall follow this output dataset format (i.e contain the above 5377 columns, where the index values correspond to the input test data). An example submission file containing random predictions is provided.
 
 7500 samples (i.e. lines) are available for the training datasets while 500 observations are used for the test datasets.
@@ -116,11 +116,14 @@ pip install -r requirements
 ```
 
 ### Download the dataset
+
 Register if haven't done so yet and login to the challenge [here](https://challengedata.ens.fr/login/?next=/participants/challenges/28/). From there, you have two options to download the dataset:
+
 - log in to the [challenge page](https://challengedata.ens.fr/login/?next=/participants/challenges/28) and download the dataset manually. Place the `.csv` files in the root of the repo.
 - download the dataset automaticly using you credentials, see [Download using credentials](#download-using-credentials-optional).
 
 #### Download using credentials (optional)
+
 To allow the automatic download of the challenge data, you have to create a file named `.env.test.local` with the credentials used at [challengedata.ens.fr](https://challengedata.ens.fr/)
 
 It needs to have defined the following environment variables inside:
