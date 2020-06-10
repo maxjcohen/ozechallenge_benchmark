@@ -9,10 +9,9 @@
     - 1.4 [Data Description](#data-description)
     - 1.5 [Benchmark Description](#benchmark-description)
 2. [Requirements](#requirements)
-    - 2.1 [Installation](#installation)
-    - 2.2 [Oze challenge Benchmark](#oze-challenge-benchmark)
-    - 2.3. [Dot-env environment variables](#dot-env-environment-variables)
-        - 2.3.1 [Programatically create dot-env file](#programatically-create-dot-env-file)
+    - 2.1 [Install dependencies](#install-dependencies)
+    - 2.2 [Download the dataset](#download-the-dataset)
+        - 2.3.1 [Download using credentials (optional)](#download-using-credentials-optional)
 3. [Usage](#usage)
 
 ---
@@ -100,11 +99,11 @@ Because of the sequential nature of the data, we chose a recurrent neural networ
 
 ## Requirements
 
-- [Install dependencies](#installation)
-- [Register and login to challenge](#oze-challenge-benchmark)
-- [Configure `.env.test.local`](#dot-env-environment-variables)
+- [Install dependencies](#install-dependencies)
+- [Download the dataset](#download-the-dataset)
+- [Download using credentials (optional)](#download-using-credentials-optional)
 
-### Installation
+### Install dependencies
 
 Clone repository with the following command in the terminal
 
@@ -116,14 +115,12 @@ source .env/bin/activate
 pip install -r requirements
 ```
 
-### Oze challenge Benchmark
+### Download the dataset
+Register if haven't done so yet and login to the challenge [here](https://challengedata.ens.fr/login/?next=/participants/challenges/28/). From there, you have two options to download the dataset:
+- log in to the [challenge page](https://challengedata.ens.fr/login/?next=/participants/challenges/28) and download the dataset manually. Place the `.csv` files in the root of the repo.
+- download the dataset automaticly using you credentials, see [Download using credentials](#download-using-credentials-optional).
 
-Register if haven't done so yet and login to the challenge [here](https://challengedata.ens.fr/login/?next=/participants/challenges/28/). The credentials used are going to be needed next to download the required challenge data.
-
-The description of the data can be viewed [here](https://github.com/maxjcohen/ozechallenge_benchmark/blob/master/data_description.md).
-
-### Dot-env environment variables
-
+#### Download using credentials (optional)
 To allow the automatic download of the challenge data, you have to create a file named `.env.test.local` with the credentials used at [challengedata.ens.fr](https://challengedata.ens.fr/)
 
 It needs to have defined the following environment variables inside:
@@ -137,8 +134,6 @@ Here is an example of a `.env.test.local` file:
 CHALLENGE_USER_NAME="your_user_name"
 CHALLENGE_USER_PASSWORD="your_password"
 ```
-
-#### Programatically create dot-env file
 
 In the case you want to store your credentials programatically, follow instructions below:
 
