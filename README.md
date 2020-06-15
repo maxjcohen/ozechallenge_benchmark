@@ -138,6 +138,7 @@ Register if haven't done so yet and login to the challenge [here](https://challe
 #### Download using credentials (optional)
 
 To allow the automatic download of the challenge data, you have to create a file named `.env.test.local` with the credentials used at [challengedata.ens.fr](https://challengedata.ens.fr/)
+Make sure you place this credentials file inside `<project_root>/src/oze_dataset` folder.
 
 It needs to have defined the following environment variables inside:
 
