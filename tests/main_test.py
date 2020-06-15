@@ -28,7 +28,7 @@ def test_lstm_tsp_fitting_oze():
 
     tsp.fit(dataset)
     mean_r2_score = tsp.score(tsp.dataset)
-    assert mean_r2_score > -300
+    assert mean_r2_score > -50
 
 def test_lstm_tsp_fitting_in_cpu_oze():
     """
@@ -50,4 +50,4 @@ def test_lstm_tsp_fitting_in_cpu_oze():
 
     tsp.fit(dataset)
     mean_r2_score = tsp.score(tsp.dataset)
-    assert mean_r2_score > -300
+    assert mean_r2_score > -50
