@@ -21,17 +21,17 @@ class BenchmarkLSTM(nn.Module):
         Fully connected layer.
     """
 
-    def __init__(self, input_dim=37, hidden_dim=100, output_dim=8, num_layers=3, **kwargs):
+    def __init__(self, input_dim=1, hidden_dim=64, output_dim=1, num_layers=3, **kwargs):
         """Defines LSTM and Linear layers.
 
         Parameters
         ----------
         input_dim: int, optional
-            Input dimension. Default is 37 (see challenge description).
+            Input dimension. Default is 1. Will be set dinamically based on the data
         hidden_dim: int, optional
             Latent dimension. Default is 100.
         output_dim: int, optional
-            Output dimension. Default is 8 (see challenge description).
+            Output dimension. Default is 1. Will be set dinamically based on the data
         num_layers: int, optional
             Number of LSTM layers. Default is 3.
         """

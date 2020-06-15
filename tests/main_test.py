@@ -3,34 +3,51 @@ main test script
 To run issue the command pytest at the root folder of the project.
 """
 from pathlib import Path
+from time_series_predictor import TimeSeriesPredictor
+import torch
 
-from tst.loss import OZELoss
+from src.model import BenchmarkLSTM
+from src.oze_dataset import OzeNPZDataset, npz_check
 
-from src.dataset import OzeNPZDataset
-from src.lstm_tsp import LSTMTimeSeriesPredictor
-from src.transformer_tsp import TransformerTimeSeriesPredictor
-from src.utils import npz_check
-
-def test_lstm_tsp():
+def test_lstm_tsp_fitting_oze():
     """
     Tests the LSTMTimeSeriesPredictor
     """
-    tsp = LSTMTimeSeriesPredictor()
-    dataset = OzeNPZDataset(dataset_path=npz_check(
-        Path('datasets'), 'dataset'), labels_path="labels.json")
+    tsp = TimeSeriesPredictor(
+        BenchmarkLSTM(),
+        max_epochs=5,
+        # train_split=None, # default = skorch.dataset.CVSplit(5)
+        optimizer=torch.optim.Adam
+    )
+    dataset = OzeNPZDataset(
+        dataset_path=npz_check(
+            Path('datasets'),
+            'dataset'
+        )
+    )
 
-    tsp.fit(dataset, loss_function=OZELoss(alpha=0.3))
-    mean_loss = tsp.compute_mean_loss(tsp.dataloader)
-    assert mean_loss < 0.01
+    tsp.fit(dataset)
+    mean_r2_score = tsp.score(tsp.dataset)
+    assert mean_r2_score > -300
 
-def test_transformer_tsp():
+def test_lstm_tsp_fitting_in_cpu_oze():
     """
-    Tests the TransformerTimeSeriesPredictor
+    Tests the LSTMTimeSeriesPredictor fitting
     """
-    tsp = TransformerTimeSeriesPredictor()
-    dataset = OzeNPZDataset(dataset_path=npz_check(
-        Path('datasets'), 'dataset'), labels_path="labels.json")
+    tsp = TimeSeriesPredictor(
+        BenchmarkLSTM(),
+        max_epochs=5,
+        # train_split=None, # default = skorch.dataset.CVSplit(5)
+        optimizer=torch.optim.Adam,
+        device='cpu'
+    )
+    dataset = OzeNPZDataset(
+        dataset_path=npz_check(
+            Path('datasets'),
+            'dataset'
+        )
+    )
 
-    tsp.fit(dataset, loss_function=OZELoss(alpha=0.3))
-    mean_loss = tsp.compute_mean_loss(tsp.dataloader)
-    assert mean_loss < 0.01
+    tsp.fit(dataset)
+    mean_r2_score = tsp.score(tsp.dataset)
+    assert mean_r2_score > -300

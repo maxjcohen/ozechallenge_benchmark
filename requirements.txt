@@ -1,13 +1,10 @@
 torch
 jupyterlab
 matplotlib
-seaborn
-tqdm
 pylint
 autopep8
 python-dotenv
 python-dotenv[cli]
-psutil
+time-series-predictor
 lxml
-git+https://github.com/maxjcohen/transformer
 pytest

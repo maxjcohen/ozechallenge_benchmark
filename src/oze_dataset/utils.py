@@ -7,12 +7,15 @@ import re
 import threading
 from os import makedirs, path, remove
 
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import requests
+from tqdm import tqdm
+
 from dotenv import load_dotenv
 from lxml import html
-from tqdm import tqdm
+
 from .dataset import TIME_SERIES_LENGTH
 
 def download_from_url(session_requests, url, destination_folder):
@@ -57,15 +60,18 @@ def download_from_url(session_requests, url, destination_folder):
     pbar.close()
     return download_details['size']
 
+
 class DownloadThread(threading.Thread):
     """
     DownloadThread
     """
+
     def __init__(self, session_requests, url, given_path):
         threading.Thread.__init__(self)
         self.session_requests = session_requests
         self.url = url
         self.path = given_path
+
     def run(self):
         """
         Download a file from given url
@@ -121,14 +127,15 @@ def npz_check(datasets_path, output_filename):
 
         authenticity_token = list(set(html.fromstring(response.text).xpath(
             "//input[@name='csrfmiddlewaretoken']/@value")))[0]
-        load_dotenv('.env.test.local')
+        load_dotenv(Path(__file__).parent.joinpath('.env.test.local'))
         challenge_user_name = os.getenv("CHALLENGE_USER_NAME")
         challenge_user_password = os.getenv("CHALLENGE_USER_PASSWORD")
 
         if None in [challenge_user_name, challenge_user_password]:
             # pylint: disable=line-too-long
             link = 'https://github.com/maxjcohen/ozechallenge_benchmark#dot-env-environment-variables'
-            raise ValueError(f'Missing login credentials. Make sure you follow {link}')
+            raise ValueError(
+                f'Missing login credentials. Make sure you follow {link}')
         response = session_requests.post(
             login_url,
             data={
@@ -142,7 +149,8 @@ def npz_check(datasets_path, output_filename):
 
         threads = []
         for file in files_to_download:
-            threads.append(DownloadThread(session_requests, file['url'], datasets_path))
+            threads.append(DownloadThread(
+                session_requests, file['url'], datasets_path))
 
         # Start all threads
         for thread in threads:
@@ -153,7 +161,8 @@ def npz_check(datasets_path, output_filename):
             thread.join()
 
     if make_npz_flag:
-        make_npz(datasets_path, output_filename, x_train['filename'], y_train['filename'])
+        make_npz(datasets_path, output_filename,
+                 x_train['filename'], y_train['filename'])
     return dataset_path
 
 
@@ -172,7 +181,11 @@ def make_npz(datasets_path, output_filename, x_train_filename, y_train_filename)
     remove(y_train_path)
 
 # pylint: disable=invalid-name
-def csv2npz(dataset_x_path, dataset_y_path, output_path, filename, labels_path='labels.json'):
+def csv2npz(dataset_x_path,
+            dataset_y_path,
+            output_path,
+            filename,
+            labels_path=Path(__file__).parent.joinpath('labels.json')):
     """Load input dataset from csv and create x_train tensor."""
     # Load dataset as csv
     x = pd.read_csv(dataset_x_path)
