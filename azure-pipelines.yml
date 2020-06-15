@@ -33,5 +33,5 @@ steps:
 
 - script: |
     pip install pytest pytest-azurepipelines
-    pytest -s
+    pytest -s --user_name $(CHALLENGE_USER_NAME) --user_password $(CHALLENGE_USER_PASSWORD)
   displayName: 'pytest'

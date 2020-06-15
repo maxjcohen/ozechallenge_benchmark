@@ -9,7 +9,22 @@ import torch
 from src.model import BenchmarkLSTM
 from src.oze_dataset import OzeNPZDataset, npz_check
 
-def test_lstm_tsp_fitting_oze():
+def _get_credentials(user_name, user_password):
+    credentials = {}
+    credentials['user_name'] = user_name
+    credentials['user_password'] = user_password
+    return credentials
+
+def _get_dataset(user_name, user_password):
+    return OzeNPZDataset(
+        dataset_path=npz_check(
+            Path('datasets'),
+            'dataset',
+            credentials=_get_credentials(user_name, user_password)
+        )
+    )
+
+def test_lstm_tsp_fitting_oze(user_name, user_password):
     """
     Tests the LSTMTimeSeriesPredictor
     """
@@ -19,18 +34,13 @@ def test_lstm_tsp_fitting_oze():
         # train_split=None, # default = skorch.dataset.CVSplit(5)
         optimizer=torch.optim.Adam
     )
-    dataset = OzeNPZDataset(
-        dataset_path=npz_check(
-            Path('datasets'),
-            'dataset'
-        )
-    )
+    dataset = _get_dataset(user_name, user_password)
 
     tsp.fit(dataset)
     mean_r2_score = tsp.score(tsp.dataset)
     assert mean_r2_score > -50
 
-def test_lstm_tsp_fitting_in_cpu_oze():
+def test_lstm_tsp_fitting_in_cpu_oze(user_name, user_password):
     """
     Tests the LSTMTimeSeriesPredictor fitting
     """
@@ -41,12 +51,7 @@ def test_lstm_tsp_fitting_in_cpu_oze():
         optimizer=torch.optim.Adam,
         device='cpu'
     )
-    dataset = OzeNPZDataset(
-        dataset_path=npz_check(
-            Path('datasets'),
-            'dataset'
-        )
-    )
+    dataset = _get_dataset(user_name, user_password)
 
     tsp.fit(dataset)
     mean_r2_score = tsp.score(tsp.dataset)

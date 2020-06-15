@@ -79,7 +79,7 @@ class DownloadThread(threading.Thread):
         download_from_url(self.session_requests, self.url, self.path)
 
 # pylint: disable=too-many-locals
-def npz_check(datasets_path, output_filename):
+def npz_check(datasets_path, output_filename, credentials=None):
     """
     make sure npz is present
     """
@@ -127,15 +127,19 @@ def npz_check(datasets_path, output_filename):
 
         authenticity_token = list(set(html.fromstring(response.text).xpath(
             "//input[@name='csrfmiddlewaretoken']/@value")))[0]
-        load_dotenv(Path(__file__).parent.joinpath('.env.test.local'))
-        challenge_user_name = os.getenv("CHALLENGE_USER_NAME")
-        challenge_user_password = os.getenv("CHALLENGE_USER_PASSWORD")
+        if credentials is None:
+            load_dotenv(Path(__file__).parent.joinpath('.env.test.local'))
+            challenge_user_name = os.getenv("CHALLENGE_USER_NAME")
+            challenge_user_password = os.getenv("CHALLENGE_USER_PASSWORD")
+            if None in [challenge_user_name, challenge_user_password]:
+                # pylint: disable=line-too-long
+                link = 'https://github.com/maxjcohen/ozechallenge_benchmark/blob/master/README.md#download-using-credentials-optional'
+                raise ValueError(
+                    f'Missing login credentials. Make sure you follow {link}')
+        else:
+            challenge_user_name = credentials['user_name']
+            challenge_user_password = credentials['user_password']
 
-        if None in [challenge_user_name, challenge_user_password]:
-            # pylint: disable=line-too-long
-            link = 'https://github.com/maxjcohen/ozechallenge_benchmark#dot-env-environment-variables'
-            raise ValueError(
-                f'Missing login credentials. Make sure you follow {link}')
         response = session_requests.post(
             login_url,
             data={
