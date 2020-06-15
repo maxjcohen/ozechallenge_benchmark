@@ -28,10 +28,10 @@ steps:
 - script: |
     python -m pip install --upgrade pip
     pip install torch===1.5.0 torchvision===0.6.0 -f https://download.pytorch.org/whl/torch_stable.html
-    pip install -r requirements.txt
+    pip install -r azure-requirements.txt
   displayName: 'Install dependencies'
 
 - script: |
-    pip install pytest pytest-azurepipelines
+    pip install pytest-azurepipelines
     pytest -s --user_name $(CHALLENGE_USER_NAME) --user_password $(CHALLENGE_USER_PASSWORD)
   displayName: 'pytest'

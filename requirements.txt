@@ -7,4 +7,4 @@ python-dotenv
 python-dotenv[cli]
 time-series-predictor
 lxml
-pytest
+pytest>=4.6
