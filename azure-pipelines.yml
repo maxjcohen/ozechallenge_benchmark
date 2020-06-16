@@ -31,9 +31,14 @@ steps:
 
 - script: |
     pip install -r azure-requirements.txt
+    pip install coverage
   displayName: 'Install dependencies'
 
 - script: |
-    pip install pytest-azurepipelines pytest-cov
-    pytest --user_name $(CHALLENGE_USER_NAME) --user_password $(CHALLENGE_USER_PASSWORD) --junitxml=junit/test-results.xml --cov=. --cov-report=xml --cov-report=html
+    pip install pytest-azurepipelines
+    pytest --user_name $(CHALLENGE_USER_NAME) --user_password $(CHALLENGE_USER_PASSWORD)
   displayName: 'Test with pytest'
+
+- script: |
+    bash <(curl -s https://codecov.io/bash)
+  displayName: 'Upload to codecov.io'
