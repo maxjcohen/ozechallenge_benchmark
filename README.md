@@ -134,8 +134,8 @@ pip install -r requirements
 
 Register if haven't done so yet and login to the challenge [here](https://challengedata.ens.fr/login/?next=/participants/challenges/28/). From there, you have two options to download the dataset:
 
-- log in to the [challenge page](https://challengedata.ens.fr/login/?next=/participants/challenges/28) and download the dataset manually. Place the `.csv` files in the root of the repo.
-- download the dataset automaticly using you credentials, see [Download using credentials](#download-using-credentials-optional).
+- log in to the [challenge page](https://challengedata.ens.fr/login/?next=/participants/challenges/28) and download the dataset manually. Place the `.csv` files to `project_root/datasets` folder.
+- download the dataset automaticaly using your credentials, see [Download using credentials](#download-using-credentials-optional).
 
 #### Download using credentials (optional)
 
