@@ -39,5 +39,5 @@ steps:
   displayName: 'Test with pytest'
 
 - script: |
-    bash <(curl -s https://codecov.io/bash)
+    codecov
   displayName: 'Upload to codecov.io'
