@@ -30,7 +30,6 @@ steps:
   displayName: 'Install tools'
 
 - script: |
-#    pip install torch===1.5.0 torchvision===0.6.0 -f https://download.pytorch.org/whl/torch_stable.html
     pip install -r azure-requirements.txt
   displayName: 'Install dependencies'
 
