@@ -36,4 +36,4 @@ steps:
 - script: |
     pip install pytest-azurepipelines pytest-cov
     pytest -s --user_name $(CHALLENGE_USER_NAME) --user_password $(CHALLENGE_USER_PASSWORD) --doctest-modules --junitxml=junit/test-results.xml --cov=. --cov-report=xml --cov-report=html
-  displayName: 'pytest'
+  displayName: 'Test with pytest'
