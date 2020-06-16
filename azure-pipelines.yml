@@ -36,23 +36,23 @@ steps:
 - script: |
     pip install pytest-azurepipelines pytest-cov
     pytest --user_name $(CHALLENGE_USER_NAME) --user_password $(CHALLENGE_USER_PASSWORD) --junitxml=junit/test-results.xml --cov=src --cov-report=xml --cov-report=html tests/
-  displayName: 'Test with pytest'
+  displayName: 'Test with Pytest'
 
 - task: PublishTestResults@2
   condition: succeededOrFailed()
   inputs:
     testResultsFiles: '**/test-*.xml'
     testRunTitle: 'Publish test results for Python $(python.version)'
-  displayName: 'Publish Test Results'
+  displayName: 'Publish test results'
 
 - task: PublishCodeCoverageResults@1
   inputs:
     codeCoverageTool: Cobertura
     summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.xml'
     reportDirectory: '$(System.DefaultWorkingDirectory)/**/htmlcov'
-  displayName: 'Publish Code Coverage Results'
+  displayName: 'Publish code coverage results'
 
 - script: |
     pip install codecov
     codecov --token=$(CODECOV_TOKEN)
-  displayName: 'Upload Codecov Reports'
+  displayName: 'Upload Codecov reports'
