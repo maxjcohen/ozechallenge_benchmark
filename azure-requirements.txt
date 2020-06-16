@@ -3,3 +3,4 @@ time-series-predictor
 lxml
 pytest>=4.6
 pandas
+requests
