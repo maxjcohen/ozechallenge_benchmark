@@ -51,3 +51,8 @@ steps:
     summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.xml'
     reportDirectory: '$(System.DefaultWorkingDirectory)/**/htmlcov'
   displayName: 'Publish Code Coverage Results'
+
+- script: |
+    pip install codecov
+    codecov --token=$(CODECOV_TOKEN)
+  displayName: 'Upload Codecov Reports'
