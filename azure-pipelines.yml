@@ -31,12 +31,11 @@ steps:
 
 - script: |
     pip install -r azure-requirements.txt
-    pip install coverage
   displayName: 'Install dependencies'
 
 - script: |
-    pip install pytest-azurepipelines
-    pytest --user_name $(CHALLENGE_USER_NAME) --user_password $(CHALLENGE_USER_PASSWORD)
+    pip install pytest-azurepipelines codecov
+    pytest --user_name $(CHALLENGE_USER_NAME) --user_password $(CHALLENGE_USER_PASSWORD) --cov=src tests/
   displayName: 'Test with pytest'
 
 - script: |
