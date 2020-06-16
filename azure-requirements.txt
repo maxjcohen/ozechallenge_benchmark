@@ -4,3 +4,4 @@ lxml
 pytest>=4.6
 pandas
 requests
+python-dotenv
