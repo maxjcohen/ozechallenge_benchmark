@@ -7,7 +7,7 @@ trigger:
 - master
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: 'ubuntu-latest'
 strategy:
   matrix:
     # Python27:
@@ -30,11 +30,11 @@ steps:
   displayName: 'Install tools'
 
 - script: |
-    pip install torch===1.5.0 torchvision===0.6.0 -f https://download.pytorch.org/whl/torch_stable.html
+#    pip install torch===1.5.0 torchvision===0.6.0 -f https://download.pytorch.org/whl/torch_stable.html
     pip install -r azure-requirements.txt
   displayName: 'Install dependencies'
 
 - script: |
     pip install pytest-azurepipelines pytest-cov
-    pytest tests -s --user_name $(CHALLENGE_USER_NAME) --user_password $(CHALLENGE_USER_PASSWORD) --doctest-modules --junitxml=junit/test-results.xml --cov=. --cov-report=xml --cov-report=html
+    pytest -s --user_name $(CHALLENGE_USER_NAME) --user_password $(CHALLENGE_USER_PASSWORD) --doctest-modules --junitxml=junit/test-results.xml --cov=. --cov-report=xml --cov-report=html
   displayName: 'pytest'
