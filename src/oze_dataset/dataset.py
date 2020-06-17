@@ -163,7 +163,6 @@ class OzeNPZDataset(TimeSeriesDataset):
 
             return (x, y, labels)
         x, y, labels = load_npz(dataset_path, labels_path)
-        self.x = x
         super().__init__(x, y, labels)
 
     # pylint: disable=arguments-differ
