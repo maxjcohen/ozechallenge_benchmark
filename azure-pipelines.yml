@@ -5,7 +5,10 @@
 
 trigger:
 - master
-
+- task: Cache@2
+  inputs:
+    key: "datasets"
+    path: "datasets"
 pool:
   vmImage: 'ubuntu-latest'
 strategy:
