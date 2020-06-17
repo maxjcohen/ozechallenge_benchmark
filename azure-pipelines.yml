@@ -24,7 +24,7 @@ steps:
   inputs:
     key: 'datasets'
     path: 'datasets'
-    displayName: 'Cache datasets folder'
+  displayName: 'Cache datasets folder'
 
 - task: UsePythonVersion@0
   inputs:
