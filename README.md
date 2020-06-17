@@ -1,6 +1,6 @@
 # Oze Challenge Benchmark
 
-[![Build Status](https://dev.azure.com/DanielAtKrypton/Oze%20Challenge%20Benchmark/_apis/build/status/DanielAtKrypton.ozechallenge_benchmark?branchName=master)](https://dev.azure.com/DanielAtKrypton/Oze%20Challenge%20Benchmark/_build/latest?definitionId=1&branchName=master) [![codecov](https://codecov.io/gh/DanielAtKrypton/ozechallenge_benchmark/branch/master/graph/badge.svg)](https://codecov.io/gh/DanielAtKrypton/ozechallenge_benchmark) [![GitHub license](https://img.shields.io/github/license/DanielAtKrypton/ozechallenge_benchmark)](https://github.com/DanielAtKrypton/ozechallenge_benchmark)
+[![Build Status](https://dev.azure.com/DanielAtKrypton/Oze%20Challenge%20Benchmark/_apis/build/status/DanielAtKrypton.ozechallenge_benchmark?branchName=master)](https://dev.azure.com/DanielAtKrypton/Oze%20Challenge%20Benchmark/_build/latest?definitionId=1&branchName=master) [![codecov](https://codecov.io/gh/DanielAtKrypton/ozechallenge_benchmark/branch/master/graph/badge.svg)](https://codecov.io/gh/DanielAtKrypton/ozechallenge_benchmark) [![Requirements Status](https://requires.io/github/DanielAtKrypton/ozechallenge_benchmark/requirements.svg?branch=master)](https://requires.io/github/DanielAtKrypton/ozechallenge_benchmark/requirements/?branch=master) [![GitHub license](https://img.shields.io/github/license/DanielAtKrypton/ozechallenge_benchmark)](https://github.com/DanielAtKrypton/ozechallenge_benchmark)
 
 ## Table of Contents
 
