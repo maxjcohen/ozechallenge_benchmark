@@ -20,11 +20,12 @@ strategy:
       python.version: '3.7'
 
 steps:
-- task: Cache@2
-  inputs:
-    key: 'datasets'
-    path: 'datasets'
-  displayName: 'Cache datasets folder'
+# Has to be commented in order to increase code coverage
+# - task: Cache@2
+#   inputs:
+#     key: 'datasets'
+#     path: 'datasets'
+#   displayName: 'Cache datasets folder'
 
 - task: UsePythonVersion@0
   inputs:
