@@ -3,6 +3,7 @@ main test script
 To run issue the command pytest at the root folder of the project.
 """
 from pathlib import Path
+from os import makedirs, rmdir, rename
 from time_series_predictor import TimeSeriesPredictor
 import torch
 
@@ -75,3 +76,30 @@ def test_lstm_tsp_fitting_in_cpu_oze(user_name, user_password):
     tsp.fit(dataset)
     mean_r2_score = tsp.score(tsp.dataset)
     assert mean_r2_score > -300
+
+def test_no_credentials():
+    """
+    Tests the LSTMTimeSeriesPredictor fitting
+    """
+    dummy_datasets_path = Path('dummy')
+    makedirs(dummy_datasets_path)
+    oze_path = Path('src').joinpath('oze_dataset')
+    env_path1 = oze_path.joinpath('.env.test.local')
+    env_path2 = oze_path.joinpath('.env.test.loca1')
+    if env_path1.is_file:
+        rename(env_path1, env_path2)
+    try:
+        npz_check(
+            dummy_datasets_path,
+            'dataset'
+        )
+        raise Exception("Should have raised an exception!")
+    # pylint: disable=broad-except
+    except Exception as exception:
+        assert type(exception).__name__ == 'ValueError'
+        # pylint: disable=line-too-long
+        link = 'https://github.com/maxjcohen/ozechallenge_benchmark/blob/master/README.md#download-using-credentials-optional'
+        assert str(exception) == f'Missing login credentials. Make sure you follow {link}'
+    rmdir(dummy_datasets_path)
+    if env_path2.is_file:
+        rename(env_path2, env_path1)
