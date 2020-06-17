@@ -22,7 +22,7 @@ strategy:
 steps:
 - task: Cache@2
   inputs:
-    key: 'datasets'
+    key: "datasets folder key" | $(Agent.OS) | "datasets"
     path: 'datasets'
   displayName: 'Cache datasets folder'
 
