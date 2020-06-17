@@ -7,7 +7,7 @@ import torch.nn as nn
 
 class OZELoss(nn.Module):
     # pylint: disable=anomalous-backslash-in-string
-    """Custom loss for TRNSys metamodel.
+    r"""Custom loss for TRNSys metamodel.
 
     Compute, for temperature and consumptions, the intergral of the squared differences
     over time. Sum the log with a coeficient ``alpha``.
