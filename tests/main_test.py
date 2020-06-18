@@ -3,12 +3,13 @@ main test script
 To run issue the command pytest at the root folder of the project.
 """
 from pathlib import Path
-from os import makedirs, rmdir, rename
+from unittest import TestCase
+from unittest.mock import patch
 from time_series_predictor import TimeSeriesPredictor
 import torch
 
 from src.model import BenchmarkLSTM
-from src.oze_dataset import OzeNPZDataset, npz_check
+from src.oze_dataset import OzeNPZDataset, npz_check, utils
 
 def _get_credentials(user_name, user_password):
     credentials = {}
@@ -77,29 +78,39 @@ def test_lstm_tsp_fitting_in_cpu_oze(user_name, user_password):
     mean_r2_score = tsp.score(tsp.dataset)
     assert mean_r2_score > -300
 
-def test_no_credentials():
+class TestFailureModule(TestCase):
+    """TestFailureModule
     """
-    Tests the LSTMTimeSeriesPredictor fitting
-    """
-    dummy_datasets_path = Path('dummy')
-    makedirs(dummy_datasets_path)
-    oze_path = Path('src').joinpath('oze_dataset')
-    env_path1 = oze_path.joinpath('.env.test.local')
-    env_path2 = oze_path.joinpath('.env.test.loca1')
-    if env_path1.is_file:
-        rename(env_path1, env_path2)
-    try:
-        npz_check(
-            dummy_datasets_path,
-            'dataset'
-        )
-        raise Exception("Should have raised an exception!")
-    # pylint: disable=broad-except
-    except Exception as exception:
-        assert type(exception).__name__ == 'ValueError'
+    @patch.object(utils, '_get_files_to_download')
+    @patch.object(utils, '_get_local_credentials')
+    def test_no_credentials(self, mock_get_local_credentials, mock_get_files_to_download):
+        """test_no_credentials
+        """
+        def patched_get_files_to_download():
+            x_train = {
+                'url': 'https://challengedata.ens.fr/participants/challenges/28/download/x-train',
+                'filename': 'x_train_LsAZgHU.csv'
+            }
+            y_train = {
+                'url': 'https://challengedata.ens.fr/participants/challenges/28/download/y-train',
+                'filename': 'y_train_EFo1WyE.csv'
+            }
+            x_test = {
+                'url': 'https://challengedata.ens.fr/participants/challenges/28/download/x-test',
+                'filename': 'x_test_QK7dVsy.csv'
+            }
+            files_to_download = [x_train, y_train, x_test]
+            make_npz_info = {}
+            make_npz_info['flag'] = True
+            make_npz_info['args'] = (x_train['filename'], y_train['filename'])
+            return files_to_download, make_npz_info
+        mock_get_local_credentials.return_value = (None, None)
+        mock_get_files_to_download.return_value = patched_get_files_to_download()
+        with self.assertRaises(ValueError) as error:
+            npz_check(
+                Path('datasets'),
+                'dataset'
+            )
         # pylint: disable=line-too-long
         link = 'https://github.com/maxjcohen/ozechallenge_benchmark/blob/master/README.md#download-using-credentials-optional'
-        assert str(exception) == f'Missing login credentials. Make sure you follow {link}'
-    rmdir(dummy_datasets_path)
-    if env_path2.is_file:
-        rename(env_path2, env_path1)
+        self.assertEqual(str(error.exception), f'Missing login credentials. Make sure you follow {link}')
