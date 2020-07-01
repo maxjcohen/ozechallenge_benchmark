@@ -5,6 +5,7 @@ import json
 import os
 import re
 import threading
+import cgi
 from os import makedirs, path, remove
 
 from pathlib import Path
@@ -31,9 +32,14 @@ def download_from_url(session_requests, url, destination_folder):
     assert response.ok
 
     download_details = {}
-    download_details['name'] = re.findall(
-        "filename=(.+)", response.headers['content-disposition'])[0]
-    download_details['size'] = int(response.headers["Content-Length"])
+    if 'Content-Disposition' in response.headers:
+        value, params = cgi.parse_header(response.headers['Content-Disposition'])
+        if not (value == 'attachment' and 'filename' in params):
+            raise ValueError('Cannot retrieve filename')
+        download_details['name'] = params['filename']
+        download_details['size'] = int(response.headers["Content-Length"])
+    else:
+        raise ValueError('Cannot retrieve Content-Disposition')
 
     dst = destination_folder.joinpath(download_details['name'])
     if dst.is_file():
