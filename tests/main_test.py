@@ -33,7 +33,7 @@ def test_lstm_tsp_fitting_oze(user_name, user_password):
     Tests the LSTMTimeSeriesPredictor
     """
     tsp = TimeSeriesPredictor(
-        BenchmarkLSTM(),
+        BenchmarkLSTM(hidden_dim=64),
         max_epochs=5,
         # train_split=None, # default = skorch.dataset.CVSplit(5)
         optimizer=torch.optim.Adam
@@ -49,7 +49,7 @@ def test_lstm_tsp_forecast_oze(user_name, user_password):
     Tests the LSTMTimeSeriesPredictor
     """
     tsp = TimeSeriesPredictor(
-        BenchmarkLSTM(),
+        BenchmarkLSTM(hidden_dim=64),
         max_epochs=5,
         # train_split=None, # default = skorch.dataset.CVSplit(5)
         optimizer=torch.optim.Adam
@@ -68,7 +68,7 @@ def test_lstm_tsp_fitting_in_cpu_oze(user_name, user_password):
     Tests the LSTMTimeSeriesPredictor fitting
     """
     tsp = TimeSeriesPredictor(
-        BenchmarkLSTM(),
+        BenchmarkLSTM(hidden_dim=64),
         max_epochs=5,
         # train_split=None, # default = skorch.dataset.CVSplit(5)
         optimizer=torch.optim.Adam,
