@@ -39,7 +39,7 @@ steps:
   displayName: 'Install tools'
 
 - script: |
-    pip install -r azure-requirements.txt
+    pip install -r requirements/azure-requirements.txt
   displayName: 'Install dependencies'
 
 - script: |
