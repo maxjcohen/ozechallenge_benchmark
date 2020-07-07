@@ -126,26 +126,16 @@ pip install -r requirements/requirements.in
 git clone https://github.com/maxjcohen/ozechallenge_benchmark.git
 cd ozechallenge_benchmark
 virtualenv -p python3 .env
-<<<<<<< HEAD
 .\.env\Scripts\activate
 pip install -r requirements/requirements.in
-=======
-source .env/bin/activate
-pip install -r requirements
->>>>>>> 152d4f996331af0bbf59e20bc1bb74c4af70d2cc
 ```
 
 ### Download the dataset
 
 Register if haven't done so yet and login to the challenge [here](https://challengedata.ens.fr/login/?next=/participants/challenges/28/). From there, you have two options to download the dataset:
 
-<<<<<<< HEAD
 - log in to the [challenge page](https://challengedata.ens.fr/login/?next=/participants/challenges/28) and download the dataset manually. Place the `.csv` files to `project_root/datasets` folder.
 - download the dataset automaticaly using your credentials, see [Download using credentials](#download-using-credentials-optional).
-=======
-- log in to the [challenge page](https://challengedata.ens.fr/login/?next=/participants/challenges/28) and download the dataset manually. Place the `.csv` files in the root of the repo.
-- download the dataset automaticly using you credentials, see [Download using credentials](#download-using-credentials-optional).
->>>>>>> 152d4f996331af0bbf59e20bc1bb74c4af70d2cc
 
 #### Download using credentials (optional)
 
