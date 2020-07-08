@@ -4,6 +4,7 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/python
 variables:
   disable.coverage.autogenerate: 'true'
+  PIP_CACHE_FOLDER: '$(Pipeline.Workspace)/../../.cache/pip'
 
 trigger:
 - master
@@ -16,10 +17,10 @@ strategy:
     #   python.version: '2.7'
     # Python35:
     #   python.version: '3.5'
-    # Python36:
-    #   python.version: '3.6'
-    Python37:
-      python.version: '3.7'
+    Python36:
+      python.version: '3.6'
+    # Python37:
+    #   python.version: '3.7'
 
 steps:
 # Has to be commented in order to increase code coverage
@@ -34,16 +35,34 @@ steps:
     versionSpec: '$(python.version)'
   displayName: 'Use Python $(python.version)'
 
-- script: |
-    python -m pip install --upgrade pip setuptools wheel
-  displayName: 'Install tools'
+- task: Cache@2
+  displayName: Cache datasets folder
+  inputs:
+    key: datasets | "$(Agent.OS)"
+    restoreKeys: |
+        datasets | "$(Agent.OS)"
+        datasets
+    path: $(Build.SourcesDirectory)/datasets
 
 - script: |
-    pip install -r requirements/azure-requirements.txt
-  displayName: 'Install dependencies'
+    pip install pip-tools
+  displayName: 'Install Pip Tools'
+
+# - task: Cache@2
+#   displayName: Cache pip environment
+#   inputs:
+#     key: pip-sync | "$(Agent.OS)" | requirements/azure-requirements.txt
+#     restoreKeys: |
+#         pip-sync | "$(Agent.OS)"
+#         pip-sync
+#     path: $(PIP_CACHE_FOLDER)
+#     cacheHitVar: PIP_CACHE_RESTORED
+
+- script: pip-sync requirements/azure-requirements.txt
+  displayName: Synchronize virtual environment with given requirements.txt (if not restored from cache)
+  # condition: eq(variables.PIP_CACHE_RESTORED, 'false')
 
 - script: |
-    pip install pytest-azurepipelines pytest-cov
     pytest --user_name $(CHALLENGE_USER_NAME) --user_password $(CHALLENGE_USER_PASSWORD) --junitxml=junit/test-results.xml --cov=src --cov-report=xml --cov-report=html tests/
   displayName: 'Test with Pytest'
 

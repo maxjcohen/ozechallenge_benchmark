@@ -1,0 +1,11 @@
+time-series-predictor
+lxml
+pytest>=4.6
+pandas
+requests
+python-dotenv
+pytest-azurepipelines
+pytest-cov
+pip
+setuptools
+wheel
