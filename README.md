@@ -1,5 +1,7 @@
 # Oze Challenge Benchmark
 
+[![Build Status](https://dev.azure.com/DanielAtKrypton/Oze%20Challenge%20Benchmark/_apis/build/status/DanielAtKrypton.ozechallenge_benchmark?branchName=master)](https://dev.azure.com/DanielAtKrypton/Oze%20Challenge%20Benchmark/_build/latest?definitionId=1&branchName=master) [![codecov](https://codecov.io/gh/DanielAtKrypton/ozechallenge_benchmark/branch/master/graph/badge.svg)](https://codecov.io/gh/DanielAtKrypton/ozechallenge_benchmark) [![Requirements Status](https://requires.io/github/DanielAtKrypton/ozechallenge_benchmark/requirements.svg?branch=master)](https://requires.io/github/DanielAtKrypton/ozechallenge_benchmark/requirements/?branch=master) [![GitHub license](https://img.shields.io/github/license/DanielAtKrypton/ozechallenge_benchmark)](https://github.com/DanielAtKrypton/ozechallenge_benchmark)
+
 ## Table of Contents
 
 1. [Description](#description)
@@ -13,6 +15,7 @@
    - 2.2 [Download the dataset](#download-the-dataset)
      - 2.3.1 [Download using credentials (optional)](#download-using-credentials-optional)
 3. [Usage](#usage)
+4. [Test](#test)
 
 ---
 
@@ -20,11 +23,11 @@
 
 ### Challenge context
 
-Oze-Energies is a company specialized in instrumented energy optimization of existing commercial buildings. To achieve this purpose, thousands of communicating sensors, coupled with monitoring and energy optimization softwares, measure and store a huge number of building-specific data (temperatures, consumptions, etc.) in real time. Using data accumulated for a few weeks and its statistical learning algorithms, Oze-Energies models the energy behavior of each building. Those models then allow identifying and evaluating progress actions for equal comfort which do not require any work, first by acting partly on the settings of climatic equipment (heating, ventilation and air conditioning) and secondly by resizing energy contracts. These actions reduce the energy bill of the owners and tenants by about 25% on average per year.
+Oze-Energies is a company specialized in instrumented energy optimization of existing commercial buildings. To achieve this purpose, thousands of communicating sensors, coupled with monitoring and energy optimization software, measure and store a huge number of building-specific data (temperatures, consumptions, etc.) in real time. Using data accumulated for a few weeks and its statistical learning algorithms, Oze-Energies models the energy behavior of each building. Those models then allow identifying and evaluating progress actions for equal comfort which do not require any work, first by acting partly on the settings of climatic equipment (heating, ventilation and air conditioning) and secondly by resizing energy contracts. These actions reduce the energy bill of the owners and tenants by about 25% on average per year.
 
 ### Challenge goals
 
-This challenge aims at introducing a new statistical model to predict and analyze energy consumptions and temperatures in a big building using observations stored in the Oze-Energies database. Physics-based approaches to build an energy/temperature simulation tool in order to model complex building behaviors are widespread in the most complex situations. The main drawback of using highly sophisticated softwares such as TRNsys or EnergyPlus to simulate the behavior of transient systems is the significant computational time required to train such models, as they integrate many noisy sources and a huge number of parameters, and require essentially massive thermodynamics computations. The most common approach is usually either to simplify greatly the model using a schematic understanding of the system, or to run complex time- and resource-consuming campaigns of measurements where trained professionals set the parameters characterizing the physical properties of the system. Even after such campaigns, calibrating these models based on real data obtained from numerous sensors is very difficult. Energy models of buildings depend on a certain number of parameters which influence the accuracy of the simulation. In order to analyze and predict future energy consumptions and future temperatures of a building, it is first necessary to calibrate the model, i.e. find the best parameters to use in the simulation tool so that the model produces similar energy consumptions as the data collected. This usually requires thousands of time-consuming simulations which is not realistic from an industrial point of view. In this data challenge, we propose to build a simplified metamodel to mimic the outputs of the physical model, based on a huge number of stored simulations. The weather conditions are obtained hourly from real sensors to store the real information relative to noisy sollicitations of the buildings. The building management system (cooling scheduling, heating scheduling, ventilation scheduling) is chosen by energy managers to provide realistic situations to the physical model. The other unknow parameters charaterizing the behavior of the building (air infiltration, capacitance, etc.) are chosen in a grid by energy managers to describe all realistic situations. For each situation specified by these input data, time series of heating and cooling consumptions and of internal temperatures associated with each set of parameters are obtained from the physical model. The objective is to build a simplified energy model and to calibrate this model using the input and output data. This will allow then to use the metamodel to propose new tuned parameters to reduce energy consumptions with a given comfort. The metric considered for the challenge is the MSE (mean squared error).
+This challenge aims at introducing a new statistical model to predict and analyze energy consumptions and temperatures in a big building using observations stored in the Oze-Energies database. Physics-based approaches to build an energy/temperature simulation tool in order to model complex building behaviors are widespread in the most complex situations. The main drawback of using highly sophisticated software such as TRNsys or EnergyPlus to simulate the behavior of transient systems is the significant computational time required to train such models, as they integrate many noisy sources and a huge number of parameters, and require essentially massive thermodynamics computations. The most common approach is usually either to simplify greatly the model using a schematic understanding of the system, or to run complex time- and resource-consuming campaigns of measurements where trained professionals set the parameters characterizing the physical properties of the system. Even after such campaigns, calibrating these models based on real data obtained from numerous sensors is very difficult. Energy models of buildings depend on a certain number of parameters which influence the accuracy of the simulation. In order to analyze and predict future energy consumptions and future temperatures of a building, it is first necessary to calibrate the model, i.e. find the best parameters to use in the simulation tool so that the model produces similar energy consumptions as the data collected. This usually requires thousands of time-consuming simulations which is not realistic from an industrial point of view. In this data challenge, we propose to build a simplified metamodel to mimic the outputs of the physical model, based on a huge number of stored simulations. The weather conditions are obtained hourly from real sensors to store the real information relative to noisy solicitations of the buildings. The building management system (cooling scheduling, heating scheduling, ventilation scheduling) is chosen by energy managers to provide realistic situations to the physical model. The other unknow parameters characterizing the behavior of the building (air infiltration, capacitance, etc.) are chosen in a grid by energy managers to describe all realistic situations. For each situation specified by these input data, time series of heating and cooling consumptions and of internal temperatures associated with each set of parameters are obtained from the physical model. The objective is to build a simplified energy model and to calibrate this model using the input and output data. This will allow then to use the metamodel to propose new tuned parameters to reduce energy consumptions with a given comfort. The metric considered for the challenge is the MSE (mean squared error).
 
 ### Presentation of the challenge at the Collège de France
 
@@ -105,26 +108,39 @@ Because of the sequential nature of the data, we chose a recurrent neural networ
 
 ### Install dependencies
 
-Clone repository with the following command in the terminal
+Clone repository with the following commands in your terminal
 
-```terminal
+#### MacOS or Linux
+
+```bash
 git clone https://github.com/maxjcohen/ozechallenge_benchmark.git
 cd ozechallenge_benchmark
 virtualenv -p python3 .env
-source .env/bin/activate
-pip install -r requirements
+. .env/bin/activate
+pip install -r requirements/requirements.in
+```
+
+#### Windows
+
+```powershell
+git clone https://github.com/maxjcohen/ozechallenge_benchmark.git
+cd ozechallenge_benchmark
+virtualenv -p python3 .env
+.\.env\Scripts\activate
+pip install -r requirements/requirements.in
 ```
 
 ### Download the dataset
 
 Register if haven't done so yet and login to the challenge [here](https://challengedata.ens.fr/login/?next=/participants/challenges/28/). From there, you have two options to download the dataset:
 
-- log in to the [challenge page](https://challengedata.ens.fr/login/?next=/participants/challenges/28) and download the dataset manually. Place the `.csv` files in the root of the repo.
-- download the dataset automaticly using you credentials, see [Download using credentials](#download-using-credentials-optional).
+- log in to the [challenge page](https://challengedata.ens.fr/login/?next=/participants/challenges/28) and download the dataset manually. Place the `.csv` files to `project_root/datasets` folder.
+- download the dataset automaticaly using your credentials, see [Download using credentials](#download-using-credentials-optional).
 
 #### Download using credentials (optional)
 
 To allow the automatic download of the challenge data, you have to create a file named `.env.test.local` with the credentials used at [challengedata.ens.fr](https://challengedata.ens.fr/)
+Make sure you place this credentials file inside `<project_root>/src/oze_dataset` folder.
 
 It needs to have defined the following environment variables inside:
 
@@ -158,5 +174,15 @@ Run `benchmark.ipynb`. This file is a Jupyter notebook script that can be run in
 - ["Getting started with the classic Jupyter Notebook"](https://jupyter.org/install)
 
 It can also be converted to `benchmark.py` by following the instruction present at the "Debug a Jupyter Notebook" section of ["Working with Jupyter Notebooks in Visual Studio Code"](https://code.visualstudio.com/docs/python/jupyter-support).
+
+---
+
+## Test
+
+In your terminal run pytest at the root folder of the project.
+
+```terminal
+pytest
+```
 
 ---

@@ -1,0 +1,10 @@
+--find-links https://download.pytorch.org/whl/torch_stable.html
+
+jupyterlab
+matplotlib
+python-dotenv
+python-dotenv[cli]
+time-series-predictor
+lxml
+pandas
+requests

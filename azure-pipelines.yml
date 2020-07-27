@@ -1,0 +1,86 @@
+# Python package
+# Create and test a Python package on multiple Python versions.
+# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/python
+variables:
+  disable.coverage.autogenerate: 'true'
+  PIP_CACHE_FOLDER: '$(Pipeline.Workspace)/../../.cache/pip'
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+strategy:
+  matrix:
+    # Python27:
+    #   python.version: '2.7'
+    # Python35:
+    #   python.version: '3.5'
+    Python36:
+      python.version: '3.6'
+    # Python37:
+    #   python.version: '3.7'
+
+steps:
+# Has to be commented in order to increase code coverage
+# - task: Cache@2
+#   inputs:
+#     key: 'datasets'
+#     path: 'datasets'
+#   displayName: 'Cache datasets folder'
+
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '$(python.version)'
+  displayName: 'Use Python $(python.version)'
+
+- task: Cache@2
+  displayName: Cache datasets folder
+  inputs:
+    key: datasets | "$(Agent.OS)"
+    restoreKeys: |
+        datasets | "$(Agent.OS)"
+        datasets
+    path: $(Build.SourcesDirectory)/datasets
+
+- script: |
+    pip install pip-tools
+  displayName: 'Install Pip Tools'
+
+# - task: Cache@2
+#   displayName: Cache pip environment
+#   inputs:
+#     key: pip-sync | "$(Agent.OS)" | requirements/azure-requirements.txt
+#     restoreKeys: |
+#         pip-sync | "$(Agent.OS)"
+#         pip-sync
+#     path: $(PIP_CACHE_FOLDER)
+#     cacheHitVar: PIP_CACHE_RESTORED
+
+- script: pip-sync requirements/azure-requirements.txt
+  displayName: Synchronize virtual environment with given requirements.txt (if not restored from cache)
+  # condition: eq(variables.PIP_CACHE_RESTORED, 'false')
+
+- script: |
+    pytest --user_name $(CHALLENGE_USER_NAME) --user_password $(CHALLENGE_USER_PASSWORD) --junitxml=junit/test-results.xml --cov=src --cov-report=xml --cov-report=html tests/
+  displayName: 'Test with Pytest'
+
+- task: PublishTestResults@2
+  condition: succeededOrFailed()
+  inputs:
+    testResultsFiles: '**/test-*.xml'
+    testRunTitle: 'Publish test results for Python $(python.version)'
+  displayName: 'Publish test results'
+
+- task: PublishCodeCoverageResults@1
+  inputs:
+    codeCoverageTool: Cobertura
+    summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.xml'
+    reportDirectory: '$(System.DefaultWorkingDirectory)/**/htmlcov'
+  displayName: 'Publish code coverage results'
+
+- script: |
+    pip install codecov
+    codecov --token=$(CODECOV_TOKEN)
+  displayName: 'Upload Codecov reports'
